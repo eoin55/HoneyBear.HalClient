@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>HoneyBear.HalClient</id>
+        <version>$version$</version>
+        <title>HoneyBear.HalClient</title>
+        <authors>Eoin O'Connor</authors>
+        <owners>Eoin O'Connor</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A lightweight fluent .NET client for navigating and consuming HAL APIs.</description>
+        <copyright>Copyright © Eoin O'Connor 2016</copyright>
+        <dependencies>
+            <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
+            <dependency id="Tavis.UriTemplates" version="0.6.4" />
+        </dependencies>
+    </metadata>
+</package>
