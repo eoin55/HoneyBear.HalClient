@@ -1,1 +1,1 @@
-# HoneyBear-HalClient
+# HoneyBear.HalClient
