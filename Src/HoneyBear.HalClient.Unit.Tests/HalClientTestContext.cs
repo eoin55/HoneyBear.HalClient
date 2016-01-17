@@ -35,19 +35,21 @@ namespace HoneyBear.HalClient.Unit.Tests
         private readonly Order _order;
         private readonly OrderItem _orderItem;
         private readonly PagedList _paged;
+        private bool _hasCurie;
+        private readonly IFixture _fixture;
 
         public HalClientTestContext()
         {
-            var fixture = new Fixture().Customize(new AutoRhinoMockCustomization());
+            _fixture = new Fixture().Customize(new AutoRhinoMockCustomization());
 
-            _http = fixture.Freeze<IJsonHttpClient>();
+            _http = _fixture.Freeze<IJsonHttpClient>();
 
-            _version = fixture.Create<Version>();
-            _order = fixture.Create<Order>();
-            _orderItem = fixture.Create<OrderItem>();
-            _paged = fixture.Create<PagedList>();
-            OrderAdd = fixture.Create<OrderAdd>();
-            OrderEdit = fixture.Create<OrderEdit>();
+            _version = _fixture.Create<Version>();
+            _order = _fixture.Create<Order>();
+            _orderItem = _fixture.Create<OrderItem>();
+            _paged = _fixture.Create<PagedList>();
+            OrderAdd = _fixture.Create<OrderAdd>();
+            OrderEdit = _fixture.Create<OrderEdit>();
 
             _sut = new HalClient(_http);
 
@@ -61,18 +63,28 @@ namespace HoneyBear.HalClient.Unit.Tests
                         templated = true
                     }
                 };
+            _hasCurie = true;
+        }
+
+        public HalClientTestContext ArrangeWithoutCurie()
+        {
+            _hasCurie = false;
+
+            return this;
         }
 
         public HalClientTestContext ArrangeHomeResource()
         {
-            ArrangeGet(RootUri, CreateRootResourceJson());
+            var content = _hasCurie ? CreateRootResourceJson() : CreateRootResourceJsonWithoutCurie();
+            ArrangeGet(RootUri, content);
 
             return this;
         }
 
         public HalClientTestContext ArrangeSingleResource()
         {
-            ArrangeGet($"/v1/order/{OrderRef}", CreateSingleResourceJson());
+            var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
+            ArrangeGet($"/v1/order/{OrderRef}", content);
 
             return this;
         }
@@ -84,12 +96,14 @@ namespace HoneyBear.HalClient.Unit.Tests
 
         public void ArrangeCreatedResource()
         {
-            ArrangePost("/v1/order", CreateSingleResourceJson());
+            var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
+            ArrangePost("/v1/order", content);
         }
 
         public void ArrangeUpdatedResource()
         {
-            ArrangePut($"/v1/order/{OrderRef}", CreateSingleResourceJson());
+            var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
+            ArrangePut($"/v1/order/{OrderRef}", content);
         }
 
         public void ArrangeDeletedResource()
@@ -183,9 +197,33 @@ namespace HoneyBear.HalClient.Unit.Tests
             _sut.Has("order-edit", Curie).Should().BeTrue("Resource should have relationship");
         }
 
+        public void AssertThatResourceHasRelationshipWithoutCurie()
+        {
+            _sut.Has("order-edit").Should().BeTrue("Resource should have relationship");
+        }
+
         public void AssertThatResourceDoesNotHasRelationship()
         {
             _sut.Has("whatever", Curie).Should().BeFalse("Resource should not have relationship");
+        }
+
+        public void AssertThatResourceDoesNotHasRelationshipWithoutCurie()
+        {
+            _sut.Has("whatever").Should().BeFalse("Resource should not have relationship");
+        }
+
+        public void AssertThatHttpClientCanBeProvided()
+        {
+            var baseAddress = _fixture.Create<Uri>();
+            var http = new HttpClient {BaseAddress = baseAddress};
+            var sut = new HalClient(http);
+            sut.HttpClient.BaseAddress.Should().Be(baseAddress);
+        }
+
+        public void AssertThatDefaultHttpClientCanBeUsed()
+        {
+            var sut = new HalClient();
+            sut.HttpClient.BaseAddress.Should().BeNull("Because it hasn't been set.");
         }
 
         private static Task<HttpResponseMessage> Ok() =>
@@ -235,6 +273,20 @@ namespace HoneyBear.HalClient.Unit.Tests
                     }
             };
 
+        private object CreateRootResourceJsonWithoutCurie() =>
+            new
+            {
+                _version.VersionNumber,
+                _links =
+                    new
+                    {
+                        self = new {href = RootUri},
+                        order = new {href = "/v1/order/{orderRef}", templated = true},
+                        order_queryby_user = new {href = "/v1/order?userRef={userRef}", templated = true},
+                        order_add = new {href = "/v1/order"}
+                    }
+            };
+
         private object CreateSingleResourceJson() =>
             new
             {
@@ -254,6 +306,43 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         retail_orderitem =
+                            new[]
+                            {
+                                new
+                                {
+                                    _orderItem.OrderItemRef,
+                                    _orderItem.Status,
+                                    _orderItem.Total,
+                                    _orderItem.Quantity,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/orderitem/{_orderItem.OrderItemRef}"}
+                                        }
+                                }
+                            }
+                    }
+            };
+
+        private object CreateSingleResourceJsonWithoutCurie() =>
+            new
+            {
+                _order.OrderRef,
+                _order.OrderNumber,
+                _order.Status,
+                _order.Total,
+                _links =
+                    new
+                    {
+                        self = new {href = $"/v1/order/{OrderRef}"},
+                        order_edit = new {href = $"/v1/order/{OrderRef}"},
+                        order_delete = new {href = $"/v1/order/{OrderRef}"}
+                    },
+                _embedded =
+                    new
+                    {
+                        orderitem =
                             new[]
                             {
                                 new
