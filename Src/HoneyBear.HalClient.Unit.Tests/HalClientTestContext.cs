@@ -10,6 +10,7 @@ using HoneyBear.HalClient.Http;
 using HoneyBear.HalClient.Models;
 using HoneyBear.HalClient.Unit.Tests.ProxyResources;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoRhinoMock;
 using Ploeh.SemanticComparison.Fluent;
@@ -81,6 +82,14 @@ namespace HoneyBear.HalClient.Unit.Tests
             return this;
         }
 
+        public HalClientTestContext ArrangeDefaultHomeResource()
+        {
+            var content = _hasCurie ? CreateRootResourceJson() : CreateRootResourceJsonWithoutCurie();
+            ArrangeGet(string.Empty, content);
+
+            return this;
+        }
+
         public HalClientTestContext ArrangeSingleResource()
         {
             var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
@@ -138,6 +147,13 @@ namespace HoneyBear.HalClient.Unit.Tests
             _http
                 .Expect(h => h.DeleteAsync(uri))
                 .Return(Ok());
+        }
+
+        public void ArrangeFailedHomeRequest()
+        {
+            _http
+                .Expect(h => h.GetAsync(RootUri))
+                .Return(NotFound());
         }
 
         public void Act(Func<IHalClient, IHalClient> act)
@@ -226,10 +242,20 @@ namespace HoneyBear.HalClient.Unit.Tests
             sut.HttpClient.BaseAddress.Should().BeNull("Because it hasn't been set.");
         }
 
+        public void AssertThatResolvingResourceThrowsExceptionWhenResourceNotNavigated()
+        {
+            Assert.Throws<NoActiveResource>(() => _sut.Item<Order>());
+        }
+
         private static Task<HttpResponseMessage> Ok() =>
             Task<HttpResponseMessage>
                 .Factory
                 .StartNew(() => new HttpResponseMessage(HttpStatusCode.OK));
+
+        private static Task<HttpResponseMessage> NotFound() =>
+            Task<HttpResponseMessage>
+                .Factory
+                .StartNew(() => new HttpResponseMessage(HttpStatusCode.NotFound));
 
         private static Task<HttpResponseMessage> Ok(object content) =>
             Task<HttpResponseMessage>

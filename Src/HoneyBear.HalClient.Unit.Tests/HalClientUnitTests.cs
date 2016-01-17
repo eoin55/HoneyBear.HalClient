@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using HoneyBear.HalClient.Models;
 using NUnit.Framework;
 
@@ -323,6 +324,39 @@ namespace HoneyBear.HalClient.Unit.Tests
         public void HalClient_can_be_created_with_default_HttpClient()
         {
             _context.AssertThatDefaultHttpClientCanBeUsed();
+        }
+
+        [Test]
+        public void Resolving_resource_throws_an_exception_when_the_resource_has_not_been_navigated()
+        {
+            _context.AssertThatResolvingResourceThrowsExceptionWhenResourceNotNavigated();
+        }
+
+        [Test]
+        public void Throws_exception_when_HTTP_request_is_unsuccessful()
+        {
+            _context.ArrangeFailedHomeRequest();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut.Root(HalClientTestContext.RootUri);
+
+            Assert.Throws<HttpRequestException>(() => _context.Act(act));
+        }
+
+        [Test]
+        public void Navigate_to_default_home_resource()
+        {
+            _context
+                .ArrangeDefaultHomeResource()
+                .ArrangeSingleResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root()
+                    .Get("order", new {orderRef = _context.OrderRef}, HalClientTestContext.Curie);
+            _context.Act(act);
+
+            _context.AssertThatSingleResourceIsPresent();
         }
     }
 }
