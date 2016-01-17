@@ -1,0 +1,34 @@
+version: 1.0.{build}
+
+configuration: Release
+
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+
+before_build:
+- cmd: >-
+    cd Src
+    nuget restore
+    cd ..
+
+build:
+  publish_nuget: true
+  verbosity: normal
+
+environment:
+    COVERALLS_REPO_TOKEN:  
+       secure: jFFhdoiw+wy15NyPcsXmS9/19qfdOqLfpe4Tp6oPSgHnjzP/YRqGBoh1j73d1UO4
+
+after_test: 
+    -cmd: .\Src\packages\OpenCover.4.6.166\tools\OpenCover.Console.exe -register:user -filter:"+[HoneyBear.HalClient]*" -target:".\Src\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe" -targetargs:"/noshadow /domain:single .\Src\HoneyBear.HalClient.Unit.Tests\bin\release\HoneyBear.HalClient.Unit.Tests.dll" -output:coverage.xml
+
+deploy:
+- provider: NuGet
+  server: 
+  api_key:
+    secure: kPJMkqM11JrtosJJWqbryXqaFoTFqLDbHDzWsC0G3xTuzziz/9YUMYNRJ7b09sNn
+  skip_symbols: true
