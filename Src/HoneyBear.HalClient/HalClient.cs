@@ -9,16 +9,27 @@ using Tavis.UriTemplates;
 
 namespace HoneyBear.HalClient
 {
+    /// <summary>
+    /// A lightweight fluent .NET client for navigating and consuming HAL APIs.
+    /// </summary>
     public class HalClient : IHalClient
     {
         private readonly IJsonHttpClient _client;
-        private IEnumerable<IResource> _current;
+        private IEnumerable<IResource> _current = Enumerable.Empty<IResource>();
 
+        /// <summary>
+        /// Creates an instance of the <see cref="HalClient"/> class.
+        /// </summary>
+        /// <param name="client">The <see cref="System.Net.Http.HttpClient"/> to use.</param>
         public HalClient(HttpClient client)
         {
             _client = new JsonHttpClient(client);
         }
 
+        /// <summary>
+        /// Creates an instance of the <see cref="HalClient"/> class.
+        /// Uses a default instance of <see cref="System.Net.Http.HttpClient"/>.
+        /// </summary>
         public HalClient()
             : this(new HttpClient())
         {
@@ -30,22 +41,76 @@ namespace HoneyBear.HalClient
             _client = client;
         }
 
+        /// <summary>
+        /// Gets the instance of <see cref="System.Net.Http.HttpClient"/> used by the <see cref="HalClient"/>.
+        /// </summary>
         public HttpClient HttpClient => _client.HttpClient;
 
+        /// <summary>
+        /// Returns the most recently navigated resource of the specified type. 
+        /// </summary>
+        /// <typeparam name="T">The type of the resource to return.</typeparam>
+        /// <returns>The most recent navigated resource of the specified type.</returns>
+        /// <exception cref="NoActiveResource" />
         public IResource<T> Item<T>() where T : class, new() => Convert<T>(Latest);
 
+        /// <summary>
+        /// Returns the list of embedded resources in the most recently navigated resource.
+        /// </summary>
+        /// <typeparam name="T">The type of the resource to return.</typeparam>
+        /// <returns>The list of embedded resources in the most recently navigated resource.</returns>
+        /// <exception cref="NoActiveResource" />
         public IEnumerable<IResource<T>> Items<T>() where T : class, new() => _current.Select(Convert<T>);
 
+        /// <summary>
+        /// Makes a HTTP GET request to the default URI and stores the returned resource.
+        /// </summary>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
         public IHalClient Root() => Execute(string.Empty, uri => _client.GetAsync(uri));
 
+        /// <summary>
+        /// Makes a HTTP GET request to the given <param name="href">URI</param> and stores the returned resource.
+        /// </summary>
+        /// <param name="href">The URI to request.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
         public IHalClient Root(string href) => Execute(href, uri => _client.GetAsync(uri));
 
+        /// <summary>
+        /// Navigates the given <param name="rel">link relation</param> and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Get(string rel) => Get(rel, null, null);
 
+        /// <summary>
+        /// Navigates the given <param name="rel">link relation</param> and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Get(string rel, string curie) => Get(rel, null, curie);
 
+        /// <summary>
+        /// Navigates the given <param name="rel">templated link relation</param> and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Get(string rel, object parameters) => Get(rel, parameters, null);
 
+        /// <summary>
+        /// Navigates the given <param name="rel">templated link relation</param> and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Get(string rel, object parameters, string curie)
         {
             var relationship = Relationship(rel, curie);
@@ -60,12 +125,46 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.GetAsync(uri));
         }
 
+        /// <summary>
+        /// Makes a HTTP POST request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Post(string rel, object value) => Post(rel, value, null, null);
 
+        /// <summary>
+        /// Makes a HTTP POST request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Post(string rel, object value, string curie) => Post(rel, value, null, curie);
 
+        /// <summary>
+        /// Makes a HTTP POST request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Post(string rel, object value, object parameters) => Post(rel, value, parameters, null);
 
+        /// <summary>
+        /// Makes a HTTP POST request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Post(string rel, object value, object parameters, string curie)
         {
             var relationship = Relationship(rel, curie);
@@ -73,12 +172,46 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.PostAsync(uri, value));
         }
 
+        /// <summary>
+        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Put(string rel, object value) => Put(rel, value, null, null);
 
+        /// <summary>
+        /// Makes a HTTP PUT request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Put(string rel, object value, string curie) => Put(rel, value, null, curie);
 
+        /// <summary>
+        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Put(string rel, object value, object parameters) => Put(rel, value, parameters, null);
 
+        /// <summary>
+        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Put(string rel, object value, object parameters, string curie)
         {
             var relationship = Relationship(rel, curie);
@@ -86,12 +219,42 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.PutAsync(uri, value));
         }
 
+        /// <summary>
+        /// Makes a HTTP DELETE request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Delete(string rel) => Delete(rel, null, null);
 
+        /// <summary>
+        /// Makes a HTTP DELETE request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
         public IHalClient Delete(string rel, string curie) => Delete(rel, null, curie);
 
+        /// <summary>
+        /// Makes a HTTP DELETE request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Delete(string rel, object parameters) => Delete(rel, parameters, null);
 
+        /// <summary>
+        /// Makes a HTTP DELETE request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
         public IHalClient Delete(string rel, object parameters, string curie)
         {
             var relationship = Relationship(rel, curie);
@@ -99,8 +262,19 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.DeleteAsync(uri));
         }
 
+        /// <summary>
+        /// Determines whether the most recently navigated resource contains the given <param name="rel">link relation</param>.
+        /// </summary>
+        /// <param name="rel">The link relation to look for.</param>
+        /// <returns>Whether or not the link relation exists.</returns>
         public bool Has(string rel) => Has(rel, null);
 
+        /// <summary>
+        /// Determines whether the most recently navigated resource contains the given <param name="rel">link relation</param>.
+        /// </summary>
+        /// <param name="rel">The link relation to look for.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>Whether or not the link relation exists.</returns>
         public bool Has(string rel, string curie)
         {
             var relationship = Relationship(rel, curie);
@@ -159,7 +333,7 @@ namespace HoneyBear.HalClient
         private static void AssertSuccessfulStatusCode(HttpResponseMessage result)
         {
             if (!result.IsSuccessStatusCode)
-                throw new HttpRequestException($"HTTP request returned non-200 HTTP status code:{result.StatusCode}");
+                throw new HttpRequestException($"HTTP request returned non-successful HTTP status code:{result.StatusCode}");
         }
 
         private IResource Latest
