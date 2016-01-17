@@ -12,7 +12,9 @@ assembly_info:
 before_build:
 - cmd: >-
     cd Src
+
     nuget restore
+
     cd ..
 
 build:
