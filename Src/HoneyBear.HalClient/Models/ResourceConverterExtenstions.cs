@@ -6,6 +6,9 @@ using Newtonsoft.Json.Linq;
 
 namespace HoneyBear.HalClient.Models
 {
+    /// <summary>
+    /// Contains a set of IResource extensions.
+    /// </summary>
     public static class ResourceConverterExtenstions
     {
         internal static T Data<T>(this IResource source)
@@ -34,6 +37,12 @@ namespace HoneyBear.HalClient.Models
             return data;
         }
 
+        /// <summary>
+        /// Deserialises a list of resources into a given type.
+        /// </summary>
+        /// <param name="source">The list of resources.</param>
+        /// <typeparam name="T">The type to deserialise the resources into.</typeparam>
+        /// <returns>A list of deserialised POCOs.</returns>
         public static IEnumerable<T> Data<T>(this IEnumerable<IResource<T>> source)
             where T : class, new()
             => source.Select(s => s.Data);
