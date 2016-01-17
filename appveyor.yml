@@ -18,6 +18,7 @@ before_build:
     cd ..
 
 build:
+  project: .\Src\HoneyBear.HalClient.sln
   publish_nuget: true
   verbosity: normal
 
