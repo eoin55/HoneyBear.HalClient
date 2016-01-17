@@ -31,14 +31,14 @@ namespace HoneyBear.HalClient
         IHalClient Root();
 
         /// <summary>
-        /// Makes a HTTP GET request to the given <param name="href">URI</param> and stores the returned resource.
+        /// Makes a HTTP GET request to the given URI and stores the returned resource.
         /// </summary>
         /// <param name="href">The URI to request.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         IHalClient Root(string href);
 
         /// <summary>
-        /// Navigates the given <param name="rel">link relation</param> and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
@@ -46,7 +46,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel);
 
         /// <summary>
-        /// Navigates the given <param name="rel">link relation</param> and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
@@ -55,7 +55,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, string curie);
 
         /// <summary>
-        /// Navigates the given <param name="rel">templated link relation</param> and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -65,7 +65,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, object parameters);
 
         /// <summary>
-        /// Navigates the given <param name="rel">templated link relation</param> and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -76,7 +76,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, object parameters, string curie);
 
         /// <summary>
-        /// Makes a HTTP POST request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
@@ -85,7 +85,7 @@ namespace HoneyBear.HalClient
         IHalClient Post(string rel, object value);
 
         /// <summary>
-        /// Makes a HTTP POST request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
@@ -95,7 +95,7 @@ namespace HoneyBear.HalClient
         IHalClient Post(string rel, object value, string curie);
 
         /// <summary>
-        /// Makes a HTTP POST request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
@@ -106,7 +106,7 @@ namespace HoneyBear.HalClient
         IHalClient Post(string rel, object value, object parameters);
 
         /// <summary>
-        /// Makes a HTTP POST request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
@@ -118,7 +118,7 @@ namespace HoneyBear.HalClient
         IHalClient Post(string rel, object value, object parameters, string curie);
 
         /// <summary>
-        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
@@ -127,7 +127,7 @@ namespace HoneyBear.HalClient
         IHalClient Put(string rel, object value);
 
         /// <summary>
-        /// Makes a HTTP PUT request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP PUT request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
@@ -137,7 +137,7 @@ namespace HoneyBear.HalClient
         IHalClient Put(string rel, object value, string curie);
 
         /// <summary>
-        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
@@ -148,7 +148,7 @@ namespace HoneyBear.HalClient
         IHalClient Put(string rel, object value, object parameters);
 
         /// <summary>
-        /// Makes a HTTP PUT request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
@@ -160,7 +160,7 @@ namespace HoneyBear.HalClient
         IHalClient Put(string rel, object value, object parameters, string curie);
 
         /// <summary>
-        /// Makes a HTTP DELETE request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
@@ -168,7 +168,7 @@ namespace HoneyBear.HalClient
         IHalClient Delete(string rel);
 
         /// <summary>
-        /// Makes a HTTP DELETE request to the given <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
@@ -177,7 +177,7 @@ namespace HoneyBear.HalClient
         IHalClient Delete(string rel, string curie);
 
         /// <summary>
-        /// Makes a HTTP DELETE request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -187,7 +187,7 @@ namespace HoneyBear.HalClient
         IHalClient Delete(string rel, object parameters);
 
         /// <summary>
-        /// Makes a HTTP DELETE request to the given templated <param name="rel">link relation</param> on the most recently navigated resource.
+        /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -198,14 +198,14 @@ namespace HoneyBear.HalClient
         IHalClient Delete(string rel, object parameters, string curie);
 
         /// <summary>
-        /// Determines whether the most recently navigated resource contains the given <param name="rel">link relation</param>.
+        /// Determines whether the most recently navigated resource contains the given link relation.
         /// </summary>
         /// <param name="rel">The link relation to look for.</param>
         /// <returns>Whether or not the link relation exists.</returns>
         bool Has(string rel);
 
         /// <summary>
-        /// Determines whether the most recently navigated resource contains the given <param name="rel">link relation</param>.
+        /// Determines whether the most recently navigated resource contains the given link relation.
         /// </summary>
         /// <param name="rel">The link relation to look for.</param>
         /// <param name="curie">The curie of the link relation.</param>

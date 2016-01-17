@@ -17,4 +17,8 @@
             <dependency id="Tavis.UriTemplates" version="0.6.4" />
         </dependencies>
     </metadata>
+    <files>
+        <file src="bin\Release\HoneyBear.HalClient.dll" target="lib\net452\HoneyBear.HalClient.dll" />
+        <file src="bin\Release\HoneyBear.HalClient.xml" target="lib\net452\HoneyBear.HalClient.xml" />
+    </files>
 </package>
