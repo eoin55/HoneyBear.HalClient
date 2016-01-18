@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="HalClientTestContext.cs" />
     <Compile Include="HalClientUnitTests.cs" />
+    <Compile Include="HalResourceJsonConverterUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProxyResources\Order.cs" />
     <Compile Include="ProxyResources\OrderAdd.cs" />

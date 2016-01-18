@@ -103,6 +103,11 @@ namespace HoneyBear.HalClient.Unit.Tests
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceJson());
         }
 
+        public void ArrangeDefaultPagedResource()
+        {
+            ArrangeGet($"/v1/order", CreateDefaultPagedResourceJson());
+        }
+
         public void ArrangeCreatedResource()
         {
             var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
@@ -295,7 +300,10 @@ namespace HoneyBear.HalClient.Unit.Tests
                         self = new {href = RootUri},
                         retail_order = new {href = "/v1/order/{orderRef}", templated = true},
                         retail_order_queryby_user = new {href = "/v1/order?userRef={userRef}", templated = true},
-                        retail_order_add = new {href = "/v1/order"}
+                        retail_order_add = new {href = "/v1/order"},
+                        retail_order_add_with_id = new {href = "/v1/order/{orderRef}", templated = true},
+                        retail_order_edit = new {href = "/v1/order/{orderRef}", templated = true},
+                        retail_order_delete = new {href = "/v1/order/{orderRef}", templated = true}
                     }
             };
 
@@ -309,6 +317,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                         self = new {href = RootUri},
                         order = new {href = "/v1/order/{orderRef}", templated = true},
                         order_queryby_user = new {href = "/v1/order?userRef={userRef}", templated = true},
+                        order_query_all = new {href = "/v1/order"},
                         order_add = new {href = "/v1/order"}
                     }
             };
@@ -400,6 +409,42 @@ namespace HoneyBear.HalClient.Unit.Tests
                     {
                         curies = _curies,
                         self = new {href = $"/v1/order?userRef={UserRef}"}
+                    },
+                _embedded =
+                    new
+                    {
+                        retail_order =
+                            new[]
+                            {
+                                new
+                                {
+                                    _order.OrderRef,
+                                    _order.OrderNumber,
+                                    _order.Status,
+                                    _order.Total,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/order/{OrderRef}"}
+                                        }
+                                }
+                            }
+                    }
+            };
+
+        private object CreateDefaultPagedResourceJson() =>
+            new
+            {
+                _paged.PageNumber,
+                _paged.PageSize,
+                _paged.KnownPagesAvailable,
+                _paged.TotalItemsCount,
+                _links =
+                    new
+                    {
+                        curies = _curies,
+                        self = new {href = $"/v1/order"}
                     },
                 _embedded =
                     new

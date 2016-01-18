@@ -110,6 +110,23 @@ namespace HoneyBear.HalClient.Unit.Tests
         }
 
         [Test]
+        public void Create_resource_with_parameters()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeSingleResource()
+                .ArrangeCreatedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Post("order-add", _context.OrderAdd, new {orderRef = _context.OrderRef}, HalClientTestContext.Curie);
+            _context.Act(act);
+
+            _context.AssertThatResourceWasCreated();
+        }
+
+        [Test]
         public void Update_resource()
         {
             _context
@@ -128,6 +145,23 @@ namespace HoneyBear.HalClient.Unit.Tests
         }
 
         [Test]
+        public void Update_resource_with_parameters()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeSingleResource()
+                .ArrangeUpdatedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Put("order-edit", _context.OrderEdit, new {orderRef = _context.OrderRef}, HalClientTestContext.Curie);
+            _context.Act(act);
+
+            _context.AssertThatResourceWasUpdated();
+        }
+
+        [Test]
         public void Delete_resource()
         {
             _context
@@ -140,6 +174,22 @@ namespace HoneyBear.HalClient.Unit.Tests
                     .Root(HalClientTestContext.RootUri)
                     .Get("order", new {orderRef = _context.OrderRef}, HalClientTestContext.Curie)
                     .Delete("order-delete", HalClientTestContext.Curie);
+            _context.Act(act);
+
+            _context.AssertThatResourceWasDeleted();
+        }
+
+        [Test]
+        public void Delete_resource_with_parameters()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeDeletedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Delete("order-delete", new {orderRef = _context.OrderRef}, HalClientTestContext.Curie);
             _context.Act(act);
 
             _context.AssertThatResourceWasDeleted();
@@ -222,6 +272,23 @@ namespace HoneyBear.HalClient.Unit.Tests
             _context.Act(act);
 
             _context.AssertThatSingleResourceIsPresent();
+        }
+
+        [Test]
+        public void Navigate_to_default_paged_resource_without_curie()
+        {
+            _context
+                .ArrangeWithoutCurie()
+                .ArrangeHomeResource()
+                .ArrangeDefaultPagedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Get("order-query-all");
+            _context.Act(act);
+
+            _context.AssertThatPagedResourceIsPresent();
         }
 
         [Test]
