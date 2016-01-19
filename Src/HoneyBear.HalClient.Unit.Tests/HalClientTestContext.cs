@@ -105,7 +105,7 @@ namespace HoneyBear.HalClient.Unit.Tests
 
         public void ArrangeDefaultPagedResource()
         {
-            ArrangeGet($"/v1/order", CreateDefaultPagedResourceJson());
+            ArrangeGet("/v1/order", CreateDefaultPagedResourceJson());
         }
 
         public void ArrangeCreatedResource()
@@ -318,7 +318,10 @@ namespace HoneyBear.HalClient.Unit.Tests
                         order = new {href = "/v1/order/{orderRef}", templated = true},
                         order_queryby_user = new {href = "/v1/order?userRef={userRef}", templated = true},
                         order_query_all = new {href = "/v1/order"},
-                        order_add = new {href = "/v1/order"}
+                        order_add = new {href = "/v1/order"},
+                        order_add_with_id = new {href = "/v1/order/{orderRef}", templated = true},
+                        order_edit = new {href = "/v1/order/{orderRef}", templated = true},
+                        order_delete = new {href = "/v1/order/{orderRef}", templated = true}
                     }
             };
 
@@ -444,7 +447,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = $"/v1/order"}
+                        self = new {href = "/v1/order"}
                     },
                 _embedded =
                     new
@@ -463,6 +466,21 @@ namespace HoneyBear.HalClient.Unit.Tests
                                         {
                                             curies = _curies,
                                             self = new {href = $"/v1/order/{OrderRef}"}
+                                        },
+                                    _embedded =
+                                        new
+                                        {
+                                            retail_user =
+                                                new
+                                                {
+                                                    UserRef,
+                                                    _links =
+                                                        new
+                                                        {
+                                                            curies = _curies,
+                                                            self = new {href = $"/v1/user/{UserRef}"}
+                                                        }
+                                                }
                                         }
                                 }
                             }

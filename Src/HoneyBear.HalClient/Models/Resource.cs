@@ -15,8 +15,6 @@ namespace HoneyBear.HalClient.Models
         public string Name { get; set; }
         public IList<ILink> Links { get; set; }
         public IList<IResource> Embedded { get; set; }
-
-        public override string ToString() => $"Rel={Rel},Href={Href}";
     }
 
     internal sealed class Resource<T> : Dictionary<string, object>, IResource<T>
@@ -35,7 +33,5 @@ namespace HoneyBear.HalClient.Models
         public IList<ILink> Links { get; set; }
         public IList<IResource> Embedded { get; set; }
         public T Data { get; set; }
-
-        public override string ToString() => $"Rel={Rel},Href={Href}";
     }
 }

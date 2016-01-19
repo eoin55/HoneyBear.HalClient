@@ -81,7 +81,7 @@ namespace HoneyBear.HalClient.Serialization
                 case JsonToken.StartObject:
                     var link = serializer.Deserialize<Link>(reader);
                     link.Rel = rel;
-                    return new[] { link };
+                    return new[] {link};
                 case JsonToken.StartArray:
                     return serializer.Deserialize<Link[]>(reader);
                 default:
@@ -124,7 +124,7 @@ namespace HoneyBear.HalClient.Serialization
                 case JsonToken.StartObject:
                     var resource = serializer.Deserialize<IResource>(reader);
                     resource.Rel = rel;
-                    return new[] { resource };
+                    return new[] {resource};
                 case JsonToken.StartArray:
                     var resources = serializer.Deserialize<Resource[]>(reader);
                     foreach (var r in resources)
