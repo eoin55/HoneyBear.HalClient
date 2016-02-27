@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HalClient.cs" />
+    <Compile Include="Http\HalJsonMediaTypeFormatter.cs" />
     <Compile Include="Http\IJsonHttpClient.cs" />
     <Compile Include="Http\JsonHttpClient.cs" />
     <Compile Include="IHalClient.cs" />

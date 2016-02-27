@@ -28,6 +28,7 @@ namespace HoneyBear.HalClient.Http
 
         private void AcceptJson()
         {
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
     }

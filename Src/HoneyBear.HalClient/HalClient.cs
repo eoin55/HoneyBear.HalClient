@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using HoneyBear.HalClient.Http;
 using HoneyBear.HalClient.Models;
@@ -16,6 +17,9 @@ namespace HoneyBear.HalClient
     {
         private readonly IJsonHttpClient _client;
         private IEnumerable<IResource> _current = Enumerable.Empty<IResource>();
+
+        private static readonly List<MediaTypeFormatter> _formatters =
+            new List<MediaTypeFormatter> {new HalJsonMediaTypeFormatter()};
 
         /// <summary>
         /// Creates an instance of the <see cref="HalClient"/> class.
@@ -300,7 +304,13 @@ namespace HoneyBear.HalClient
 
             AssertSuccessfulStatusCode(result);
 
-            _current = new[] {result.Content == null ? new Resource() : result.Content.ReadAsAsync<Resource>().Result};
+            _current =
+                new[]
+                {
+                    result.Content == null
+                        ? new Resource()
+                        : result.Content.ReadAsAsync<Resource>(_formatters).Result
+                };
 
             return this;
         }
