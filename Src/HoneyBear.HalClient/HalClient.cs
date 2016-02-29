@@ -19,7 +19,7 @@ namespace HoneyBear.HalClient
         private readonly IEnumerable<MediaTypeFormatter> _formatters;
         private IEnumerable<IResource> _current = Enumerable.Empty<IResource>();
 
-        private static readonly IEnumerable<MediaTypeFormatter> _defaultFormatters =
+        private static readonly ICollection<MediaTypeFormatter> _defaultFormatters =
             new[] {new HalJsonMediaTypeFormatter()};
 
         /// <summary>
@@ -32,10 +32,10 @@ namespace HoneyBear.HalClient
         /// </param>
         public HalClient(
             HttpClient client,
-            IEnumerable<MediaTypeFormatter> formatters)
+            ICollection<MediaTypeFormatter> formatters)
         {
             _client = new JsonHttpClient(client);
-            _formatters = formatters;
+            _formatters = formatters == null || !formatters.Any() ? _defaultFormatters : formatters;
         }
 
         /// <summary>
