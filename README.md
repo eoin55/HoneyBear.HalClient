@@ -59,7 +59,7 @@ public class CustomMediaTypeFormatter : JsonMediaTypeFormatter
     SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/hal+json"));
 }
 
-var client = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") }, new CustomMediaTypeFormatter());
+var client = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") }, new List<MediaTypeFormatter> { new CustomMediaTypeFormatter() });
 ```
 
 ## Usage Examples
