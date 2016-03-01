@@ -49,6 +49,19 @@ var client = new HalClient();
 client.HttpClient.BaseAddress = new Uri("https://api.retail.com/");
 ```
 
+#### (Optional) Custom serializer settings
+HalClient uses the default JsonMediaTypeFormatter for handling serialization and deserialization. If you need to change any of the settings (for handling null values, missing properties, custom date formats and so on), you can build a custom MediaTypeFormatter by subclassing JsonMediaTypeFormatter, and then passing it in to the HalClient constructor:
+```cs
+public class CustomMediaTypeFormatter : JsonMediaTypeFormatter 
+{
+    SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+    
+    SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/hal+json"));
+}
+
+var client = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") }, new CustomMediaTypeFormatter());
+```
+
 ## Usage Examples
 
 The following examples are based on the [example JSON](#example-json) below.
