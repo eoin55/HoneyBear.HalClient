@@ -41,16 +41,16 @@ Install-Package HoneyBear.HalClient
 ### 2) Create an instance of HalClient
 `HalClient` has a dependency on `HttpClient`.  This can be provided in the constructor:
 ```cs
-var client = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") });
+var halClent = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") });
 ```
 Or accessed via a public property:
 ```cs
-var client = new HalClient();
-client.HttpClient.BaseAddress = new Uri("https://api.retail.com/");
+var halClent = new HalClient();
+halClent.HttpClient.BaseAddress = new Uri("https://api.retail.com/");
 ```
 
 #### (Optional) Custom serializer settings
-HalClient uses the default JsonMediaTypeFormatter for handling serialization and deserialization. If you need to change any of the settings (for handling null values, missing properties, custom date formats and so on), you can build a custom MediaTypeFormatter by subclassing JsonMediaTypeFormatter, and then passing it in to the HalClient constructor:
+HalClient uses the default JsonMediaTypeFormatter for handling deserialization of responses. If you need to change any of the settings (for handling null values, missing properties, custom date formats and so on), you can build a custom MediaTypeFormatter by subclassing JsonMediaTypeFormatter, and then passing it in to the HalClient constructor:
 ```cs
 public class CustomMediaTypeFormatter : JsonMediaTypeFormatter 
 {
@@ -59,7 +59,51 @@ public class CustomMediaTypeFormatter : JsonMediaTypeFormatter
     SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/hal+json"));
 }
 
-var client = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") }, new List<MediaTypeFormatter> { new CustomMediaTypeFormatter() });
+var halClent = new HalClient(new HttpClient { BaseAddress = new Uri("https://api.retail.com/") }, new List<MediaTypeFormatter> { new CustomMediaTypeFormatter() });
+```
+
+### (Optional) Override default implementation of IJsonHttpClient
+By default, `HalClient` uses a internal implementation of `IJsonHttpClient`, which uses `HttpClient` to perform HTTP requests (GET, POST, PUT and DELETE).  In some cases, it may be preferable to provide your own implementation of `IJsonHttpClient`.  For example, if you want to specify a different `MediaTypeFormatter` for serializing POST and PUT requests:
+
+```cs
+public class CustomJsonHttpClient : IJsonHttpClient
+{
+    private readonly CustomMediaTypeFormatter _formatter;
+
+    public CustomJsonHttpClient(HttpClient client, CustomMediaTypeFormatter formatter)
+    {
+        HttpClient = client;
+	_formatter = formatter;
+        HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+    }
+
+    public HttpClient HttpClient { get; }
+
+    public Task<HttpResponseMessage> GetAsync(string uri)
+        => HttpClient.GetAsync(uri);
+
+    public Task<HttpResponseMessage> PostAsync<T>(string uri, T value)
+        => HttpClient.PostAsync(uri, value, _formatter);
+
+    public Task<HttpResponseMessage> PutAsync<T>(string uri, T value)
+        => HttpClient.PutAsync(uri, value, _formatter);
+
+    public Task<HttpResponseMessage> DeleteAsync(string uri)
+        => HttpClient.DeleteAsync(uri);
+}
+```
+
+```cs
+var jsonClient = new CustomJsonHttpClient(new HttpClient(), new CustomMediaTypeFormatter());
+var halClent = new HalClient(jsonClient);
+```
+
+or
+
+```cs
+var jsonClient = new CustomJsonHttpClient(new HttpClient(), new CustomMediaTypeFormatter());
+var formatters = new List<MediaTypeFormatter> { new CustomMediaTypeFormatter() };
+var halClent = new HalClient(jsonClient, formatters);
 ```
 
 ## Usage Examples

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace HoneyBear.HalClient.Http
 {
-    internal class JsonHttpClient : IJsonHttpClient
+    internal sealed class JsonHttpClient : IJsonHttpClient
     {
         public JsonHttpClient(HttpClient client)
         {

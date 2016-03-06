@@ -59,10 +59,31 @@ namespace HoneyBear.HalClient
             
         }
 
-        internal HalClient(IJsonHttpClient client)
+        /// <summary>
+        /// Creates an instance of the <see cref="HalClient"/> class.
+        /// </summary>
+        /// <param name="client">The implementation of <see cref="IJsonHttpClient"/> to use.</param>
+        /// <param name="formatters">
+        /// Specifies the list of <see cref="MediaTypeFormatter"/>s to use.
+        /// Default is <see cref="HalJsonMediaTypeFormatter"/>.
+        /// </param>
+        public HalClient(
+            IJsonHttpClient client,
+            ICollection<MediaTypeFormatter> formatters)
         {
             _client = client;
-            _formatters = _defaultFormatters;
+            _formatters = formatters == null || !formatters.Any() ? _defaultFormatters : formatters;
+        }
+
+        /// <summary>
+        /// Creates an instance of the <see cref="HalClient"/> class.
+        /// </summary>
+        /// <param name="client">The implementation of <see cref="IJsonHttpClient"/> to use.</param>
+        public HalClient(
+            IJsonHttpClient client)
+            : this(client, _defaultFormatters)
+        {
+            
         }
 
         /// <summary>
