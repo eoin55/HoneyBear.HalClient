@@ -25,11 +25,16 @@ namespace HoneyBear.HalClient.Models
 
                 var propertyType = dataType.GetProperty(property.Name).PropertyType;
 
+                object value;
                 var complex = pair.Value as JObject;
-                var value =
-                    complex != null
-                        ? complex.ToObject(propertyType)
-                        : TypeDescriptor.GetConverter(propertyType).ConvertFromInvariantString(pair.Value.ToString());
+                var array = pair.Value as JArray;
+
+                if (complex != null)
+                    value = complex.ToObject(propertyType);
+                else if (array != null)
+                    value = array.ToObject(propertyType);
+                else
+                    value = TypeDescriptor.GetConverter(propertyType).ConvertFromInvariantString(pair.Value.ToString());
 
                 property.SetValue(data, value, null);
             }
