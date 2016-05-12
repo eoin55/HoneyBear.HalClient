@@ -9,6 +9,7 @@ using FluentAssertions;
 using HoneyBear.HalClient.Http;
 using HoneyBear.HalClient.Models;
 using HoneyBear.HalClient.Unit.Tests.ProxyResources;
+using Jmansar.SemanticComparisonExtensions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -193,7 +194,12 @@ namespace HoneyBear.HalClient.Unit.Tests
         public void AssertThatSingleEmbeddedResourceIsPresent()
         {
             var resource = _result.Items<OrderItem>().Data().First();
-            _orderItem.AsSource().OfLikeness<OrderItem>().ShouldEqual(resource);
+            var expected =
+                _orderItem
+                    .AsSource()
+                    .OfLikeness<OrderItem>()
+                    .WithCollectionInnerLikeness(d => d.SerialNumbers, s => s.SerialNumbers);
+            expected.ShouldEqual(resource);
         }
 
         public void AssertThatResourceWasCreated()
@@ -352,6 +358,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                     _orderItem.Status,
                                     _orderItem.Total,
                                     _orderItem.Quantity,
+                                    _orderItem.SerialNumbers,
                                     _links =
                                         new
                                         {
@@ -389,6 +396,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                     _orderItem.Status,
                                     _orderItem.Total,
                                     _orderItem.Quantity,
+                                    _orderItem.SerialNumbers,
                                     _links =
                                         new
                                         {

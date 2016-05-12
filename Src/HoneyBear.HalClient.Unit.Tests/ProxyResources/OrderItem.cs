@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using NMoneys;
 
 namespace HoneyBear.HalClient.Unit.Tests.ProxyResources
@@ -9,5 +10,6 @@ namespace HoneyBear.HalClient.Unit.Tests.ProxyResources
         public string Status { get; set; }
         public Money Total { get; set; }
         public int Quantity { get; set; }
+        public ReadOnlyCollection<string> SerialNumbers { get; set; }
     }
 }
