@@ -299,6 +299,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             new
             {
                 _version.VersionNumber,
+                _version.CreatedUtc,
                 _links =
                     new
                     {
@@ -317,6 +318,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             new
             {
                 _version.VersionNumber,
+                _version.CreatedUtc,
                 _links =
                     new
                     {
