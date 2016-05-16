@@ -2,7 +2,7 @@
 
 ![Build Status](https://ci.appveyor.com/api/projects/status/github/eoin55/HoneyBear.HalClient?branch=master&svg=true)
 [![Coverage Status](https://coveralls.io/repos/eoin55/HoneyBear.HalClient/badge.svg?branch=master&service=github)](https://coveralls.io/github/eoin55/HoneyBear.HalClient?branch=master)
-[![NuGet version](https://badge.fury.io/nu/honeybear.halclient.svg)](https://badge.fury.io/nu/honeybear.halclient)
+[![NuGet Version](https://img.shields.io/nuget/v/HoneyBear.HalClient.svg)](https://www.nuget.org/packages/HoneyBear.HalClient/)
 
 A lightweight fluent .NET client for navigating and consuming HAL APIs.
 

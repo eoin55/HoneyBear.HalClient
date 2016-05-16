@@ -171,6 +171,63 @@ namespace HoneyBear.HalClient
         }
 
         /// <summary>
+        /// Navigates the given link relation and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        public IHalClient Get(IResource resource, string rel) => Get(resource, rel, null, null);
+
+        /// <summary>
+        /// Navigates the given link relation and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        public IHalClient Get(IResource resource, string rel, string curie) => Get(resource, rel, null, curie);
+
+        /// <summary>
+        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        public IHalClient Get(IResource resource, string rel, object parameters) => Get(resource, rel, parameters, null);
+
+        /// <summary>
+        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        public IHalClient Get(IResource resource, string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            if (resource.Embedded.Any(e => e.Rel == relationship))
+            {
+                _current = resource.Embedded.Where(e => e.Rel == relationship);
+                return this;
+            }
+
+            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            if (link == null)
+                throw new FailedToResolveRelationship(relationship);
+
+            return Execute(Construct(link, parameters), uri => _client.GetAsync(uri));
+        }
+
+        /// <summary>
         /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>

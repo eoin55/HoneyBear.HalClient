@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using HoneyBear.HalClient.Models;
+using HoneyBear.HalClient.Unit.Tests.ProxyResources;
 using NUnit.Framework;
 
 namespace HoneyBear.HalClient.Unit.Tests
@@ -90,6 +92,64 @@ namespace HoneyBear.HalClient.Unit.Tests
             _context.Act(act);
 
             _context.AssertThatEmbeddedPagedResourceIsPresent();
+        }
+
+        [Test]
+        public void Navigate_to_paged_embedded_resource_and_navigate_to_embedded_resource_array()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangePagedResourceWithEmbeddedArrayOfResources();
+
+            Func<IHalClient, IHalClient> act =
+                sut =>
+                {
+                    var order =
+                        sut
+                            .Root(HalClientTestContext.RootUri)
+                            .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, HalClientTestContext.Curie)
+                            .Get("order", HalClientTestContext.Curie)
+                            .Items<Order>()
+                            .First();
+
+                    sut
+                        .Get(order, "orderitem-query", HalClientTestContext.Curie)
+                        .Get("orderitem", HalClientTestContext.Curie);
+
+                    return sut;
+                };
+            _context.Act(act);
+
+            _context.AssertThatResourceArrayIsPresent();
+        }
+
+        [Test]
+        public void Navigate_to_paged_embedded_resource_and_navigate_to_linked_resource_array()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangePagedResourceWithLinkedArrayOfResources();
+
+            Func<IHalClient, IHalClient> act =
+                sut =>
+                {
+                    var order =
+                        sut
+                            .Root(HalClientTestContext.RootUri)
+                            .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, HalClientTestContext.Curie)
+                            .Get("order", HalClientTestContext.Curie)
+                            .Items<Order>()
+                            .First();
+
+                    sut
+                        .Get(order, "orderitem-query", HalClientTestContext.Curie)
+                        .Get("orderitem", HalClientTestContext.Curie);
+
+                    return sut;
+                };
+            _context.Act(act);
+
+            _context.AssertThatResourceArrayIsPresent();
         }
 
         [Test]
