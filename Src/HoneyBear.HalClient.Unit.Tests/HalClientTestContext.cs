@@ -47,7 +47,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             _http = _fixture.Freeze<IJsonHttpClient>();
 
             _version = _fixture.Create<Version>();
-            _order = _fixture.Create<Order>();
+            _order = _fixture.Build<Order>().With(x => x.DeliveryDate, null).Create();
             _orderItem = _fixture.Create<OrderItem>();
             _paged = _fixture.Create<PagedList>();
             OrderAdd = _fixture.Create<OrderAdd>();
@@ -361,6 +361,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                 _order.OrderRef,
                 _order.OrderNumber,
                 _order.Status,
+                _order.DeliveryDate,
                 _order.Total,
                 _links =
                     new
@@ -400,6 +401,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                 _order.OrderRef,
                 _order.OrderNumber,
                 _order.Status,
+                _order.DeliveryDate,
                 _order.Total,
                 _links =
                     new
@@ -492,6 +494,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                     _order.OrderRef,
                                     _order.OrderNumber,
                                     _order.Status,
+                                    _order.DeliveryDate,
                                     _order.Total,
                                     _links =
                                         new
@@ -533,6 +536,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                     _order.OrderRef,
                                     _order.OrderNumber,
                                     _order.Status,
+                                    _order.DeliveryDate,
                                     _order.Total,
                                     _links =
                                         new
@@ -607,6 +611,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                     _order.OrderRef,
                                     _order.OrderNumber,
                                     _order.Status,
+                                    _order.DeliveryDate,
                                     _order.Total,
                                     _links =
                                         new
