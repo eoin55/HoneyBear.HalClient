@@ -33,8 +33,10 @@ namespace HoneyBear.HalClient.Models
                     value = complex.ToObject(propertyType);
                 else if (array != null)
                     value = array.ToObject(propertyType);
-                else
+                else if (pair.Value != null)
                     value = TypeDescriptor.GetConverter(propertyType).ConvertFromInvariantString(pair.Value.ToString());
+                else
+                    value = null;
 
                 property.SetValue(data, value, null);
             }
