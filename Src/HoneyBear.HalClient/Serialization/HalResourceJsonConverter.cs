@@ -1,6 +1,7 @@
-﻿using System;
-using HoneyBear.HalClient.Models;
+﻿using HoneyBear.HalClient.Models;
 using Newtonsoft.Json;
+using System;
+using System.Reflection;
 
 namespace HoneyBear.HalClient.Serialization
 {
@@ -14,6 +15,6 @@ namespace HoneyBear.HalClient.Serialization
         public override object ReadJson(JsonReader reader, Type objectType, object existing, JsonSerializer serializer)
             => HalResourceJsonReader.ReadResource(reader, serializer);
 
-        public override bool CanConvert(Type objectType) => typeof (IResource).IsAssignableFrom(objectType);
+        public override bool CanConvert(Type objectType) => typeof (IResource).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
     }
 }

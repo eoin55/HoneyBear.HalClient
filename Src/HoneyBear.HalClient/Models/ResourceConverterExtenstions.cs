@@ -1,8 +1,9 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace HoneyBear.HalClient.Models
 {
@@ -17,13 +18,13 @@ namespace HoneyBear.HalClient.Models
             var data = new T();
             var dataType = typeof(T);
 
-            foreach (var property in dataType.GetProperties())
+            foreach (var property in dataType.GetTypeInfo().DeclaredProperties)
             {
-                var pair = source.FirstOrDefault(p => p.Key.Equals(property.Name, StringComparison.InvariantCultureIgnoreCase));
+                var pair = source.FirstOrDefault(p => p.Key.Equals(property.Name, StringComparison.OrdinalIgnoreCase));
                 if (pair.Key == null)
                     continue;
 
-                var propertyType = dataType.GetProperty(property.Name).PropertyType;
+                var propertyType = property.PropertyType;
 
                 object value;
                 var complex = pair.Value as JObject;

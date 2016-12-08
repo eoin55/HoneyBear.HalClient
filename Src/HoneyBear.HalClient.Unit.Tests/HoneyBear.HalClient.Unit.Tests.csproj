@@ -97,12 +97,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HoneyBear.HalClient\HoneyBear.HalClient.csproj">
-      <Project>{c21ca351-6768-4f05-af71-51732adbd63e}</Project>
-      <Name>HoneyBear.HalClient</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
