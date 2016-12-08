@@ -19,11 +19,19 @@ namespace HoneyBear.HalClient.Models
 
             foreach (var property in dataType.GetProperties())
             {
-                var pair = source.FirstOrDefault(p => p.Key.Equals(property.Name, StringComparison.InvariantCultureIgnoreCase));
+                var propertyName = property.Name;
+
+                var jsonPropertyAttribute = property.GetCustomAttributes(false).OfType<Newtonsoft.Json.JsonPropertyAttribute>().FirstOrDefault();
+                if (jsonPropertyAttribute != null && !string.IsNullOrEmpty(jsonPropertyAttribute.PropertyName))
+                {
+                    propertyName = jsonPropertyAttribute.PropertyName;
+                }
+
+                var pair = source.FirstOrDefault(p => p.Key.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
                 if (pair.Key == null)
                     continue;
 
-                var propertyType = dataType.GetProperty(property.Name).PropertyType;
+                var propertyType = property.PropertyType;
 
                 object value;
                 var complex = pair.Value as JObject;
