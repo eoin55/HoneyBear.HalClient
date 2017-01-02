@@ -5,6 +5,9 @@
   "language": "en-US",
   "authors": [ "Eoin O'Connor" ],
   "copyright": "Copyright © Eoin O'Connor 2016",
+  "buildOptions": {
+    "xmlDoc": true
+  },
   "packOptions": {
     "owners": [ "Eoin O'Connor" ],
     "projectUrl": "https://github.com/eoin55/HoneyBear.HalClient",
