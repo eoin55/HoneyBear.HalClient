@@ -16,10 +16,15 @@ before_build:
     appveyor-retry dotnet restore -v Minimal
 
     $json = Get-Content .\Src\HoneyBear.HalClient\project.json -raw | ConvertFrom-Json
+
     Write-Host $json
+
     Write-Host "version = " + $json.version
+
     Write-Host "version = $env:VERSION"
+
     $json.version = "$env:VERSION"
+    
     $json | ConvertTo-Json | Set-Content .\Src\HoneyBear.HalClient\project.json
 build_script:
 - dotnet build ".\Src\HoneyBear.HalClient" -c %CONFIGURATION%
