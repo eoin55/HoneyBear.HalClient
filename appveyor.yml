@@ -21,9 +21,9 @@ before_build:
 
     Write-Host "version = " + $json.version
 
-    Write-Host "version = $env:VERSION"
+    Write-Host "version = $env:APPVEYOR_BUILD_VERSION"
 
-    $json.version = "$env:VERSION"
+    $json.version = "$env:APPVEYOR_BUILD_VERSION"
     
     $json | ConvertTo-Json | Set-Content .\Src\HoneyBear.HalClient\project.json
 build_script:
