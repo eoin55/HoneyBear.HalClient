@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyBear.HalClient", "HoneyBear.HalClient\HoneyBear.HalClient.csproj", "{C21CA351-6768-4F05-AF71-51732ADBD63E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B5CDA96D-55D5-47A3-BAE3-CAF57CC96DAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyBear.HalClient.Unit.Tests", "HoneyBear.HalClient.Unit.Tests\HoneyBear.HalClient.Unit.Tests.csproj", "{3FC62AC5-447F-4FA6-A9DD-66465A1A873F}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HoneyBear.HalClient", "HoneyBear.HalClient\HoneyBear.HalClient.xproj", "{048AA506-06D4-482D-A42A-45678F63F7A0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HoneyBear.HalClient.Unit.Tests", "HoneyBear.HalClient.Unit.Tests\HoneyBear.HalClient.Unit.Tests.xproj", "{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,19 +15,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C21CA351-6768-4F05-AF71-51732ADBD63E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C21CA351-6768-4F05-AF71-51732ADBD63E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C21CA351-6768-4F05-AF71-51732ADBD63E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C21CA351-6768-4F05-AF71-51732ADBD63E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3FC62AC5-447F-4FA6-A9DD-66465A1A873F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3FC62AC5-447F-4FA6-A9DD-66465A1A873F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3FC62AC5-447F-4FA6-A9DD-66465A1A873F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FC62AC5-447F-4FA6-A9DD-66465A1A873F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{048AA506-06D4-482D-A42A-45678F63F7A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{048AA506-06D4-482D-A42A-45678F63F7A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{048AA506-06D4-482D-A42A-45678F63F7A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{048AA506-06D4-482D-A42A-45678F63F7A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3FC62AC5-447F-4FA6-A9DD-66465A1A873F} = {B5CDA96D-55D5-47A3-BAE3-CAF57CC96DAD}
+		{317104FB-DB9B-4CED-9D33-E0DDF67E8FA4} = {B5CDA96D-55D5-47A3-BAE3-CAF57CC96DAD}
 	EndGlobalSection
 EndGlobal
