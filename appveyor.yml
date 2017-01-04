@@ -32,4 +32,4 @@ after_test:
 artifacts:
 - path: artifacts\**\*.*
 cache:
-- %USERPROFILE%\.nuget\packages
+- '%USERPROFILE%\.nuget\packages'
