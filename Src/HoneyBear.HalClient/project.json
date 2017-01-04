@@ -1,10 +1,10 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.0.0",
   "title": "HoneyBear.HalClient",
   "description": "A lightweight fluent .NET client for navigating and consuming HAL APIs.",
   "language": "en-US",
   "authors": [ "Eoin O'Connor" ],
-  "copyright": "Copyright © Eoin O'Connor 2016",
+  "copyright": "Copyright Eoin O'Connor 2017",
   "buildOptions": {
     "xmlDoc": true
   },
@@ -12,7 +12,7 @@
     "owners": [ "Eoin O'Connor" ],
     "projectUrl": "https://github.com/eoin55/HoneyBear.HalClient",
     "tags": [ "HAL", "JSON", "Hypermedia", "HATEOAS", "REST" ],
-    "licenseUrl": "https://github.com/eoin55/HoneyBear.HalClient/LICENSE",
+    "licenseUrl": "https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE",
     "repository": {
       "type": "git",
       "url": "git://github.com/eoin55/HoneyBear.HalClient"

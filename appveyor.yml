@@ -17,19 +17,16 @@ before_build:
 
     $json = Get-Content .\Src\HoneyBear.HalClient\project.json -raw | ConvertFrom-Json
 
-    Write-Host $json
-
-    Write-Host "version = " + $json.version
-
-    Write-Host "version = $env:APPVEYOR_BUILD_VERSION"
-
     $json.version = "$env:APPVEYOR_BUILD_VERSION"
-    
+
     $json | ConvertTo-Json | Set-Content .\Src\HoneyBear.HalClient\project.json
 build_script:
 - dotnet build ".\Src\HoneyBear.HalClient" -c %CONFIGURATION%
 after_build:
-- dotnet pack ".\Src\HoneyBear.HalClient" -c %CONFIGURATION% --no-build -o artifacts
+- ps: >-
+    dotnet pack ".\Src\HoneyBear.HalClient" -c %CONFIGURATION% --no-build -o artifacts
+
+    Remove-Item .\artifacts\*.symbols.nupkg
 test_script:
 - dotnet test ".\Src\HoneyBear.HalClient.Unit.Tests" -c %CONFIGURATION%
 after_test:
