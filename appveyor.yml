@@ -24,7 +24,7 @@ build_script:
 - dotnet build ".\Src\HoneyBear.HalClient" -c %CONFIGURATION%
 after_build:
 - ps: >-
-    dotnet pack ".\Src\HoneyBear.HalClient" -c %CONFIGURATION% --no-build -o artifacts
+    dotnet pack ".\Src\HoneyBear.HalClient" -c "$env:CONFIGURATION" --no-build -o artifacts
 
     Remove-Item .\artifacts\*.symbols.nupkg
 test_script:
