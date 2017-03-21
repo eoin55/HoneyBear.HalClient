@@ -13,6 +13,8 @@ assembly_info:
   assembly_informational_version: '{version}'
 before_build:
 - ps: >-
+    $env:path = "C:\Program Files (x86)\MSBuild\14.0\Bin;$env:path"
+
     appveyor-retry dotnet restore -v Minimal
 
     $json = Get-Content .\Src\HoneyBear.HalClient\project.json -raw | ConvertFrom-Json
