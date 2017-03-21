@@ -17,6 +17,8 @@ before_build:
 
     msbuild -version
 
+    dotnet --version
+
     appveyor-retry dotnet restore -v Minimal
 
     $json = Get-Content .\Src\HoneyBear.HalClient\project.json -raw | ConvertFrom-Json
