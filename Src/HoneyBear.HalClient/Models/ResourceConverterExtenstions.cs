@@ -1,9 +1,10 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HoneyBear.HalClient.Models
 {
@@ -20,7 +21,12 @@ namespace HoneyBear.HalClient.Models
 
             foreach (var property in dataType.GetTypeInfo().DeclaredProperties)
             {
-                var pair = source.FirstOrDefault(p => p.Key.Equals(property.Name, StringComparison.OrdinalIgnoreCase));
+                var propertyName = property.Name;
+                var attribute = property.GetCustomAttributes<JsonPropertyAttribute>().FirstOrDefault();
+                if (!string.IsNullOrEmpty(attribute?.PropertyName))
+                    propertyName = attribute.PropertyName;
+
+                var pair = source.FirstOrDefault(p => p.Key.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
                 if (pair.Key == null)
                     continue;
 
