@@ -39,6 +39,7 @@ namespace HoneyBear.HalClient.Unit.Tests
         private readonly PagedList _paged;
         private bool _hasCurie;
         private readonly IFixture _fixture;
+        private readonly ResourceWithJsonAttribute _resourceWithJsonAttribute;
 
         public HalClientTestContext()
         {
@@ -52,6 +53,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             _paged = _fixture.Create<PagedList>();
             OrderAdd = _fixture.Create<OrderAdd>();
             OrderEdit = _fixture.Create<OrderEdit>();
+            _resourceWithJsonAttribute = _fixture.Create<ResourceWithJsonAttribute>();
 
             _sut = new HalClient(_http);
 
@@ -135,6 +137,11 @@ namespace HoneyBear.HalClient.Unit.Tests
         public void ArrangeDeletedResource()
         {
             ArrangeDelete($"/v1/order/{OrderRef}");
+        }
+
+        public void ArrangeResourceWithJsonAttribute()
+        {
+            ArrangeGet("/v1/resourcewithjsonattribute", CreateResourceWithJsonAttribute());
         }
 
         private void ArrangeGet(string uri, object content)
@@ -280,6 +287,12 @@ namespace HoneyBear.HalClient.Unit.Tests
             Assert.Throws<NoActiveResource>(() => _sut.Item<Order>());
         }
 
+        public void AssertThatResourceWithJsonAttributeIsPresent()
+        {
+            var resource = _result.Item<ResourceWithJsonAttribute>().Data;
+            _resourceWithJsonAttribute.AsSource().OfLikeness<ResourceWithJsonAttribute>().ShouldEqual(resource);
+        }
+
         private static Task<HttpResponseMessage> Ok() =>
             Task<HttpResponseMessage>
                 .Factory
@@ -332,7 +345,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                         retail_order_add = new {href = "/v1/order"},
                         retail_order_add_with_id = new {href = "/v1/order/{orderRef}", templated = true},
                         retail_order_edit = new {href = "/v1/order/{orderRef}", templated = true},
-                        retail_order_delete = new {href = "/v1/order/{orderRef}", templated = true}
+                        retail_order_delete = new {href = "/v1/order/{orderRef}", templated = true},
+                        retail_resource_with_json_attribute = new {href = "/v1/resourcewithjsonattribute"}
                     }
             };
 
@@ -637,6 +651,19 @@ namespace HoneyBear.HalClient.Unit.Tests
                                 }
                             }
                     }
+            };
+
+        private object CreateResourceWithJsonAttribute() =>
+            new
+            {
+                id = _resourceWithJsonAttribute.Id,
+                name = _resourceWithJsonAttribute.PropertyWithJsonAttribute,
+                _links =
+                new
+                {
+                    curies = _curies,
+                    self = new {href = "/v1/resourcewithjsonattribute"}
+                }
             };
     }
 }
