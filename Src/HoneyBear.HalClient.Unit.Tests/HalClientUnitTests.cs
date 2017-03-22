@@ -153,6 +153,22 @@ namespace HoneyBear.HalClient.Unit.Tests
         }
 
         [Test]
+        public void Navigate_to_resource_with_JSON_attribute()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeResourceWithJsonAttribute();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Get("resource-with-json-attribute", null, HalClientTestContext.Curie);
+            _context.Act(act);
+
+            _context.AssertThatResourceWithJsonAttributeIsPresent();
+        }
+
+        [Test]
         public void Create_resource()
         {
             _context
