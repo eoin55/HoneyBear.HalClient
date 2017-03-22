@@ -19,8 +19,4 @@
 	    </group>
         </dependencies>
     </metadata>
-    <files>
-        <file src="bin\Release\HoneyBear.HalClient.dll" target="lib\net45\HoneyBear.HalClient.dll" />
-        <file src="bin\Release\HoneyBear.HalClient.xml" target="lib\net45\HoneyBear.HalClient.xml" />
-    </files>
 </package>
