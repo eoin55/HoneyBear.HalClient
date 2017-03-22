@@ -17,7 +17,7 @@ before_build:
 build:
   project: .\Src\HoneyBear.HalClient.sln
   publish_nuget: true
-  include_nuget_references: true
+  include_nuget_references: false
   verbosity: normal
 after_test:
 - cmd: >-
