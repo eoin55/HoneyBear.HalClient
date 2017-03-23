@@ -17,6 +17,10 @@
                 <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
                 <dependency id="Tavis.UriTemplates" version="1.1.1" />
 	    </group>
+	    <group targetFramework=".NETStandard1.1">
+                <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
+                <dependency id="Tavis.UriTemplates" version="1.1.1" />
+	    </group>
         </dependencies>
     </metadata>
     <files>
