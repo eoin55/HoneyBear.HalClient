@@ -15,8 +15,12 @@
         <dependencies>
 	    <group targetFramework=".NETFramework4.5">
                 <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
-                <dependency id="Tavis.UriTemplates" version="1.1.0" />
+                <dependency id="Tavis.UriTemplates" version="1.1.1" />
 	    </group>
         </dependencies>
     </metadata>
+    <files>
+        <file src="bin\Release\HoneyBear.HalClient.dll" target="lib\net45\HoneyBear.HalClient.dll" />
+        <file src="bin\Release\HoneyBear.HalClient.xml" target="lib\net45\HoneyBear.HalClient.xml" />
+    </files>
 </package>
