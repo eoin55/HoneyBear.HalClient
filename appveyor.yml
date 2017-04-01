@@ -10,9 +10,9 @@ build:
 after_build:
 - ps: >-
     $csproj = Get-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj -raw | `
-        % {$_ -replace "<AssemblyVersion>1.0.0.0</AssemblyVersion>", "<AssemblyVersion>1.1.0.0</AssemblyVersion>"} | `
-        % {$_ -replace "<FileVersion>1.0.0.0</FileVersion>", "<FileVersion>1.1.0.0</FileVersion>"} | `
-        % {$_ -replace "<Version>1.0.0.0</Version>", "<Version>1.1.0.0</Version>"}
+        % {$_ -replace "<AssemblyVersion>1.0.0.0</AssemblyVersion>", "<AssemblyVersion>$env:APPVEYOR_BUILD_VERSION</AssemblyVersion>"} | `
+        % {$_ -replace "<FileVersion>1.0.0.0</FileVersion>", "<FileVersion>$env:APPVEYOR_BUILD_VERSION</FileVersion>"} | `
+        % {$_ -replace "<Version>1.0.0.0</Version>", "<Version>$env:APPVEYOR_BUILD_VERSION</Version>"}
 
     $csproj | Set-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj
 
