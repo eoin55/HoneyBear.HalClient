@@ -35,7 +35,7 @@ after_test:
         -targetargs:".\Src\HoneyBear.HalClient.Unit.Tests\bin\%CONFIGURATION%\net452\HoneyBear.HalClient.Unit.Tests.dll" `
         -output:coverage.xml
 
-    $env:USERPROFILE\.nuget\packages\coveralls.io\1.3.4\tools\coveralls.net.exe `
+    . $env:USERPROFILE\.nuget\packages\coveralls.io\1.3.4\tools\coveralls.net.exe `
         --opencover coverage.xml `
         --repo-token hOBugtrP7A2crVX8BA0cT9E8GjnlK8bcP
 deploy: off
