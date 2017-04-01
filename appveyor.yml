@@ -13,12 +13,12 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 before_build:
-- nuget restore .\Src\HoneyBear.HalClient.sln
+- msbuild -t:restore .\Src\HoneyBear.HalClient.sln
 build:
   project: .\Src\HoneyBear.HalClient.sln
   verbosity: normal
 after_build:
-- cmd: nuget pack .\Src\HoneyBear.HalClient\HoneyBear.HalClient.nuspec -version %APPVEYOR_BUILD_VERSION% -outputdirectory .\artifacts
+- ps: msbuild -t:pack .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj -p:configuration=$env:CONFIGURATION -p:packageversion=$env:APPVEYOR_BUILD_VERSION -p:authors="Eoin O'Connor" -p:licenseurl=https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE -p:projecturl=https://github.com/eoin55/HoneyBear.HalClient -p:description="A lightweight fluent .NET client for navigating and consuming HAL APIs.  Includes support for .NET Core." -p:copyright="Copyright © Eoin O'Connor 2017" -p:packagetags="HAL JSON Hypermedia HATEOAS REST DotNetCore" -p:packageoutputpath=$pwd\artifacts
 after_test:
 - cmd: >-
     .\Src\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[HoneyBear.HalClient]*" -target:".\Src\packages\NUnit.ConsoleRunner.3.6.1\tools\nunit3-console.exe" -targetargs:".\Src\HoneyBear.HalClient.Unit.Tests\bin\%CONFIGURATION%\HoneyBear.HalClient.Unit.Tests.dll" -output:coverage.xml
