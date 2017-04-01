@@ -14,7 +14,7 @@ after_build:
         % {$_ -replace "<FileVersion>1.0.0.0</FileVersion>", "<FileVersion>1.1.0.0</FileVersion>"} | `
         % {$_ -replace "<Version>1.0.0.0</Version>", "<Version>1.1.0.0</Version>"}
 
-    $csproj Set-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj
+    $csproj | Set-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj
 
     msbuild -t:pack .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj `
         -p:configuration=$env:CONFIGURATION `
