@@ -4,7 +4,12 @@ skip_tags: true
 configuration: Release
 platform: Any CPU
 before_build:
-- msbuild -t:restore .\Src\HoneyBear.HalClient.sln
+- ps: >-
+    if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
+       Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha"
+    }
+
+    msbuild -t:restore .\Src\HoneyBear.HalClient.sln
 build:
   project: .\Src\HoneyBear.HalClient.sln
 after_build:
