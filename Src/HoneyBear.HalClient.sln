@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyBear.HalClient", "Hone
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyBear.HalClient.Unit.Tests", "HoneyBear.HalClient.Unit.Tests\HoneyBear.HalClient.Unit.Tests.csproj", "{BAAB438B-2191-46F1-902C-22D7D1786899}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoneyBear.HalClient.SampleApi.Host", "HoneyBear.HalClient.SampleApi.Host\HoneyBear.HalClient.SampleApi.Host.csproj", "{753367E7-07BF-4270-A662-F4603B5CC8B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,11 +25,16 @@ Global
 		{BAAB438B-2191-46F1-902C-22D7D1786899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAAB438B-2191-46F1-902C-22D7D1786899}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAAB438B-2191-46F1-902C-22D7D1786899}.Release|Any CPU.Build.0 = Release|Any CPU
+		{753367E7-07BF-4270-A662-F4603B5CC8B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{753367E7-07BF-4270-A662-F4603B5CC8B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{753367E7-07BF-4270-A662-F4603B5CC8B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{753367E7-07BF-4270-A662-F4603B5CC8B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BAAB438B-2191-46F1-902C-22D7D1786899} = {B5CDA96D-55D5-47A3-BAE3-CAF57CC96DAD}
+		{753367E7-07BF-4270-A662-F4603B5CC8B7} = {B5CDA96D-55D5-47A3-BAE3-CAF57CC96DAD}
 	EndGlobalSection
 EndGlobal
