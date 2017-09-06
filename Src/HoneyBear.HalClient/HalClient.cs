@@ -441,7 +441,7 @@ namespace HoneyBear.HalClient
         private static void AssertSuccessfulStatusCode(HttpResponseMessage result)
         {
             if (!result.IsSuccessStatusCode)
-                throw new HttpRequestException($"HTTP request returned non-successful HTTP status code:{result.StatusCode}");
+                throw new HttpRequestFailed(result.StatusCode);
         }
 
         private IResource Latest
