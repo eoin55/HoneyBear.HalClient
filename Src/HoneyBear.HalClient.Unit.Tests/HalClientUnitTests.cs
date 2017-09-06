@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using HoneyBear.HalClient.Models;
 using HoneyBear.HalClient.Unit.Tests.ProxyResources;
 using NUnit.Framework;
@@ -553,7 +552,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             Func<IHalClient, IHalClient> act = sut =>
                 sut.Root(HalClientTestContext.RootUri);
 
-            Assert.Throws<HttpRequestException>(() => _context.Act(act));
+            Assert.Throws<HttpRequestFailed>(() => _context.Act(act));
         }
     }
 }
