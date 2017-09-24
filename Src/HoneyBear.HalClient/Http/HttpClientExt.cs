@@ -14,7 +14,7 @@ namespace HoneyBear.HalClient.Http
             HttpRequestMessage request = new HttpRequestMessage
             {
                 Method = new HttpMethod("PATCH"),
-                RequestUri = new Uri(client.BaseAddress + requestUri),
+                RequestUri = new Uri(client.BaseAddress, requestUri),
                 Content = content,
             };
 
