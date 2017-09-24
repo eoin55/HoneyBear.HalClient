@@ -134,6 +134,12 @@ namespace HoneyBear.HalClient.Unit.Tests
             ArrangePut($"/v1/order/{OrderRef}", content);
         }
 
+        public void ArrangePatchedResource()
+        {
+            var content = _hasCurie ? CreateSingleResourceJson() : CreateSingleResourceJsonWithoutCurie();
+            ArrangePatch($"/v1/order/{OrderRef}", content);
+        }
+
         public void ArrangeDeletedResource()
         {
             ArrangeDelete($"/v1/order/{OrderRef}");
@@ -163,6 +169,13 @@ namespace HoneyBear.HalClient.Unit.Tests
         {
             _http
                 .Expect(h => h.PutAsync(Arg<string>.Is.Equal(uri), Arg<object>.Is.Anything))
+                .Return(Ok(content));
+        }
+
+        private void ArrangePatch(string uri, object content)
+        {
+            _http
+                .Expect(h => h.PatchAsync(Arg<string>.Is.Equal(uri), Arg<object>.Is.Anything))
                 .Return(Ok(content));
         }
 

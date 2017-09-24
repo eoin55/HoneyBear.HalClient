@@ -23,6 +23,9 @@ namespace HoneyBear.HalClient.Http
         public Task<HttpResponseMessage> PutAsync<T>(string uri, T value)
             => HttpClient.PutAsJsonAsync(uri, value);
 
+        public Task<HttpResponseMessage> PatchAsync<T>(string uri, T value)
+            => HttpClient.PatchJsonAsync(uri, typeof(T), value);
+
         public Task<HttpResponseMessage> DeleteAsync(string uri)
             => HttpClient.DeleteAsync(uri);
 

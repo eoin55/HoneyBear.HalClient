@@ -200,6 +200,48 @@ namespace HoneyBear.HalClient
         /// <exception cref="FailedToResolveRelationship" />
         /// <exception cref="TemplateParametersAreRequired" />
         IHalClient Put(string rel, object value, object parameters, string curie);
+        
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        IHalClient Patch(string rel, object value);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        IHalClient Patch(string rel, object value, string curie);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        IHalClient Patch(string rel, object value, object parameters);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        IHalClient Patch(string rel, object value, object parameters, string curie);
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.

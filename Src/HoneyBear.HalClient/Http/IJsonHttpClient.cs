@@ -39,6 +39,15 @@ namespace HoneyBear.HalClient.Http
         Task<HttpResponseMessage> PutAsync<T>(string uri, T value);
 
         /// <summary>
+        /// Send a PUT request to the specified Uri as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"/>
+        /// <param name="uri">The Uri the request is sent to.</param>
+        /// <param name="value">The HTTP request content sent to the server.</param>
+        /// <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"/>.The task object representing the asynchronous operation.</returns>
+        Task<HttpResponseMessage> PatchAsync<T>(string uri, T value);
+
+        /// <summary>
         /// Send a DELETE request to the specified Uri as an asynchronous operation.
         /// </summary>
         /// <param name="uri">The Uri the request is sent to.</param>
