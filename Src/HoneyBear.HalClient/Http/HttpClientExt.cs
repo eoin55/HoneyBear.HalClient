@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HoneyBear.HalClient.Http
 {
-    static class HttpClientEx
+    static internal class HttpClientEx
     {
         public const string MimeJson = "application/json";
 
