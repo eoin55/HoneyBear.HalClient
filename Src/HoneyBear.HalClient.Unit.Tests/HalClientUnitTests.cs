@@ -311,6 +311,88 @@ namespace HoneyBear.HalClient.Unit.Tests
         }
 
         [Test]
+        public void Patch_resource()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeSingleResource()
+                .ArrangePatchedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Get("order", new { orderRef = _context.OrderRef }, HalClientTestContext.Curie)
+                    .Patch("order-edit", _context.OrderEdit, HalClientTestContext.Curie);
+            _context.Act(act);
+
+            //For simplicty we don't actually apply any patch here, 
+            //but just test if the payload arrived via PATCH
+            _context.AssertThatResourceWasUpdated();
+        }
+
+        [Test]
+        public void Patch_resource_with_parameters()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangeSingleResource()
+                .ArrangePatchedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+            {
+                var parameters = new { orderRef = _context.OrderRef };
+                return sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Patch("order-edit", _context.OrderEdit, parameters, HalClientTestContext.Curie);
+            };
+            _context.Act(act);
+            
+            //For simplicty we don't actually apply any patch here, 
+            //but just test if the payload arrived via PATCH
+            _context.AssertThatResourceWasUpdated();
+        }
+
+        [Test]
+        public void Patch_resource_without_curie()
+        {
+            _context
+                .ArrangeWithoutCurie()
+                .ArrangeHomeResource()
+                .ArrangeSingleResource()
+                .ArrangePatchedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Get("order", new { orderRef = _context.OrderRef })
+                    .Patch("order-edit", _context.OrderEdit);
+            _context.Act(act);
+
+            //For simplicty we don't actually apply any patch here, 
+            //but just test if the payload arrived via PATCH
+            _context.AssertThatResourceWasUpdated();
+        }
+
+        [Test]
+        public void Patch_resource_with_parameters_without_curie()
+        {
+            _context
+                .ArrangeWithoutCurie()
+                .ArrangeHomeResource()
+                .ArrangePatchedResource();
+
+            Func<IHalClient, IHalClient> act = sut =>
+                sut
+                    .Root(HalClientTestContext.RootUri)
+                    .Patch("order-edit", _context.OrderEdit, new { orderRef = _context.OrderRef });
+            _context.Act(act);
+
+            //For simplicty we don't actually apply any patch here, 
+            //but just test if the payload arrived via PATCH
+            _context.AssertThatResourceWasUpdated();
+        }
+
+        [Test]
         public void Delete_resource()
         {
             _context

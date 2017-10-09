@@ -322,6 +322,54 @@ namespace HoneyBear.HalClient
         }
 
         /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        public IHalClient Patch(string rel, object value) => Patch(rel, value, null, null);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        public IHalClient Patch(string rel, object value, string curie) => Patch(rel, value, null, curie);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        public IHalClient Patch(string rel, object value, object parameters) => Patch(rel, value, parameters, null);
+
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="FailedToResolveRelationship" />
+        /// <exception cref="TemplateParametersAreRequired" />
+        public IHalClient Patch(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecute(relationship, parameters, uri => _client.PatchAsync(uri, value));
+        }
+
+
+        /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
