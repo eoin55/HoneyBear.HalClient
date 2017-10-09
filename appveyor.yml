@@ -1,4 +1,4 @@
-version: 1.2.{build}
+version: 1.3.{build}
 image: Visual Studio 2017
 skip_tags: true
 configuration: Release
@@ -27,7 +27,7 @@ after_build:
         -p:licenseurl=https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE `
         -p:projecturl=https://github.com/eoin55/HoneyBear.HalClient `
         -p:description="A lightweight fluent .NET client for navigating and consuming HAL APIs.  Includes support for .NET Core." `
-        -p:copyright="Copyright © Eoin O'Connor 2017" `
+        -p:copyright="Copyright ï¿½ Eoin O'Connor 2017" `
         -p:packagetags="HAL JSON Hypermedia HATEOAS REST DotNetCore" `
         -p:packageoutputpath=$pwd\artifacts
 after_test:
