@@ -17,7 +17,7 @@ namespace HoneyBear.HalClient
     {
         private readonly IJsonHttpClient _client;
         private readonly IEnumerable<MediaTypeFormatter> _formatters;
-        private IEnumerable<IResource> _current = Enumerable.Empty<IResource>();
+        private readonly IEnumerable<IResource> _current = Enumerable.Empty<IResource>();
 
         private static readonly ICollection<MediaTypeFormatter> _defaultFormatters =
             new[] {new HalJsonMediaTypeFormatter()};
@@ -84,6 +84,14 @@ namespace HoneyBear.HalClient
             : this(client, _defaultFormatters)
         {
             
+        }
+
+        private HalClient(
+            HalClient client,
+            IEnumerable<IResource> current)
+            : this(client._client, client._formatters.ToList())
+        {
+            _current = current;
         }
 
         /// <summary>
@@ -163,8 +171,8 @@ namespace HoneyBear.HalClient
             var embedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
             if (embedded != null)
             {
-                _current = embedded.Embedded.Where(e => e.Rel == relationship);
-                return this;
+                var current = embedded.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
             }
 
             return BuildAndExecute(relationship, parameters, uri => _client.GetAsync(uri));
@@ -216,8 +224,8 @@ namespace HoneyBear.HalClient
 
             if (resource.Embedded.Any(e => e.Rel == relationship))
             {
-                _current = resource.Embedded.Where(e => e.Rel == relationship);
-                return this;
+                var current = resource.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
             }
 
             var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
@@ -450,7 +458,7 @@ namespace HoneyBear.HalClient
 
             AssertSuccessfulStatusCode(result);
 
-            _current =
+            var current =
                 new[]
                 {
                     result.Content == null
@@ -458,7 +466,7 @@ namespace HoneyBear.HalClient
                         : result.Content.ReadAsAsync<Resource>(_formatters).Result
                 };
 
-            return this;
+            return new HalClient(this, current);
         }
 
         private static string Construct(ILink link, object parameters)

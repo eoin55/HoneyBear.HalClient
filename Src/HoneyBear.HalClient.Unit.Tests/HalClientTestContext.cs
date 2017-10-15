@@ -20,7 +20,7 @@ using Version = HoneyBear.HalClient.Unit.Tests.ProxyResources.Version;
 
 namespace HoneyBear.HalClient.Unit.Tests
 {
-    internal class HalClientTestContext
+    internal sealed class HalClientTestContext
     {
         public const string RootUri = "/v1/version/1";
         public const string Curie = "retail";
@@ -263,22 +263,22 @@ namespace HoneyBear.HalClient.Unit.Tests
 
         public void AssertThatResourceHasRelationship()
         {
-            _sut.Has("order-edit", Curie).Should().BeTrue("Resource should have relationship");
+            _result.Has("order-edit", Curie).Should().BeTrue("Resource should have relationship");
         }
 
         public void AssertThatResourceHasRelationshipWithoutCurie()
         {
-            _sut.Has("order-edit").Should().BeTrue("Resource should have relationship");
+            _result.Has("order-edit").Should().BeTrue("Resource should have relationship");
         }
 
         public void AssertThatResourceDoesNotHasRelationship()
         {
-            _sut.Has("whatever", Curie).Should().BeFalse("Resource should not have relationship");
+            _result.Has("whatever", Curie).Should().BeFalse("Resource should not have relationship");
         }
 
         public void AssertThatResourceDoesNotHasRelationshipWithoutCurie()
         {
-            _sut.Has("whatever").Should().BeFalse("Resource should not have relationship");
+            _result.Has("whatever").Should().BeFalse("Resource should not have relationship");
         }
 
         public void AssertThatHttpClientCanBeProvided()
