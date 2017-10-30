@@ -119,7 +119,9 @@ namespace HoneyBear.HalClient
         /// Makes a HTTP GET request to the default URI and stores the returned resource.
         /// </summary>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        public IHalClient Root() => Execute(string.Empty, uri => _client.GetAsync(uri));
+        public IHalClient Root() => Root(string.Empty);
+
+        internal Task<IHalClient> ExecuteRootAsync() => ExecuteRootAsync(string.Empty);
 
         /// <summary>
         /// Makes a HTTP GET request to the given URL and stores the returned resource.
@@ -127,6 +129,8 @@ namespace HoneyBear.HalClient
         /// <param name="href">The URI to request.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         public IHalClient Root(string href) => Execute(href, uri => _client.GetAsync(uri));
+
+        internal Task<IHalClient> ExecuteRootAsync(string href) => ExecuteAsync(href, uri => _client.GetAsync(uri));
 
         /// <summary>
         /// Navigates the given link relation and stores the the returned resource(s).
@@ -176,6 +180,20 @@ namespace HoneyBear.HalClient
             }
 
             return BuildAndExecute(relationship, parameters, uri => _client.GetAsync(uri));
+        }
+
+        internal async Task<IHalClient> ExecuteGetAsync(string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            var embedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
+            if (embedded != null)
+            {
+                var current = embedded.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
+            }
+
+            return await BuildAndExecuteAsync(relationship, parameters, uri => _client.GetAsync(uri));
         }
 
         /// <summary>
@@ -235,6 +253,23 @@ namespace HoneyBear.HalClient
             return Execute(Construct(link, parameters), uri => _client.GetAsync(uri));
         }
 
+        internal async Task<IHalClient> ExecuteGetAsync(IResource resource, string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            if (resource.Embedded.Any(e => e.Rel == relationship))
+            {
+                var current = resource.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
+            }
+
+            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            if (link == null)
+                throw new FailedToResolveRelationship(relationship);
+
+            return await ExecuteAsync(Construct(link, parameters), uri => _client.GetAsync(uri));
+        }
+
         /// <summary>
         /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
@@ -280,6 +315,13 @@ namespace HoneyBear.HalClient
             var relationship = Relationship(rel, curie);
 
             return BuildAndExecute(relationship, parameters, uri => _client.PostAsync(uri, value));
+        }
+
+        internal Task<IHalClient> ExecutePostAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PostAsync(uri, value));
         }
 
         /// <summary>
@@ -329,6 +371,13 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.PutAsync(uri, value));
         }
 
+        internal Task<IHalClient> ExecutePutAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PutAsync(uri, value));
+        }
+
         /// <summary>
         /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
         /// </summary>
@@ -376,6 +425,12 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.PatchAsync(uri, value));
         }
 
+        internal Task<IHalClient> ExecutePatchAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PatchAsync(uri, value));
+        }
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
@@ -420,6 +475,13 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.DeleteAsync(uri));
         }
 
+        internal Task<IHalClient> ExecuteDeleteAsync(string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.DeleteAsync(uri));
+        }
+
         /// <summary>
         /// Determines whether the most recently navigated resource contains the given link relation.
         /// </summary>
@@ -452,10 +514,32 @@ namespace HoneyBear.HalClient
             return Execute(Construct(link, parameters), command);
         }
 
+        internal Task<IHalClient> BuildAndExecuteAsync(string relationship, object parameters, Func<string, Task<HttpResponseMessage>> command)
+        {
+            var resource = _current.FirstOrDefault(r => r.Links.Any(l => l.Rel == relationship));
+            if (resource == null)
+                throw new FailedToResolveRelationship(relationship);
+
+            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            return ExecuteAsync(Construct(link, parameters), command);
+        }
+
         private IHalClient Execute(string uri, Func<string, Task<HttpResponseMessage>> command)
         {
             var result = command(uri).Result;
 
+            return Process(result);
+        }
+
+        internal async Task<IHalClient> ExecuteAsync(string uri, Func<string, Task<HttpResponseMessage>> command)
+        {
+            var result = await command(uri);
+
+            return Process(result);
+        }
+
+        private IHalClient Process(HttpResponseMessage result)
+        {
             AssertSuccessfulStatusCode(result);
 
             var current =
