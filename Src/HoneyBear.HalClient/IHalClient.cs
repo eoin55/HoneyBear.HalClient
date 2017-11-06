@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using HoneyBear.HalClient.Models;
 
 namespace HoneyBear.HalClient
@@ -38,7 +40,14 @@ namespace HoneyBear.HalClient
         IHalClient Root(string href);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Makes a HTTP GET request to the given URL and stores the returned resource.
+        /// </summary>
+        /// <param name="href">The URI to request.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        Task<IHalClient> RootAsync(string href);
+
+        /// <summary>
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
@@ -46,7 +55,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
@@ -55,7 +64,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, string curie);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -65,7 +74,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, object parameters);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -76,7 +85,17 @@ namespace HoneyBear.HalClient
         IHalClient Get(string rel, object parameters, string curie);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> GetAsync(string rel, object parameters, string curie);
+
+        /// <summary>
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
@@ -85,7 +104,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(IResource resource, string rel);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
@@ -95,7 +114,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(IResource resource, string rel, string curie);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -106,7 +125,7 @@ namespace HoneyBear.HalClient
         IHalClient Get(IResource resource, string rel, object parameters);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -116,6 +135,17 @@ namespace HoneyBear.HalClient
         /// <exception cref="FailedToResolveRelationship" />
         /// <exception cref="TemplateParametersAreRequired" />
         IHalClient Get(IResource resource, string rel, object parameters, string curie);
+
+        /// <summary>
+        /// Navigates the given templated link relation and stores the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> GetAsync(IResource resource, string rel, object parameters, string curie);
 
         /// <summary>
         /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
@@ -160,6 +190,17 @@ namespace HoneyBear.HalClient
         IHalClient Post(string rel, object value, object parameters, string curie);
 
         /// <summary>
+        /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> PostAsync(string rel, object value, object parameters, string curie);
+
+        /// <summary>
         /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -200,7 +241,18 @@ namespace HoneyBear.HalClient
         /// <exception cref="FailedToResolveRelationship" />
         /// <exception cref="TemplateParametersAreRequired" />
         IHalClient Put(string rel, object value, object parameters, string curie);
-        
+
+        /// <summary>
+        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> PutAsync(string rel, object value, object parameters, string curie);
+
         /// <summary>
         /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
         /// </summary>
@@ -244,6 +296,17 @@ namespace HoneyBear.HalClient
         IHalClient Patch(string rel, object value, object parameters, string curie);
 
         /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> PatchAsync(string rel, object value, object parameters, string curie);
+
+        /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
@@ -280,6 +343,16 @@ namespace HoneyBear.HalClient
         /// <exception cref="FailedToResolveRelationship" />
         /// <exception cref="TemplateParametersAreRequired" />
         IHalClient Delete(string rel, object parameters, string curie);
+
+        /// <summary>
+        /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        Task<IHalClient> DeleteAsync(string rel, object parameters, string curie);
 
         /// <summary>
         /// Determines whether the most recently navigated resource contains the given link relation.
