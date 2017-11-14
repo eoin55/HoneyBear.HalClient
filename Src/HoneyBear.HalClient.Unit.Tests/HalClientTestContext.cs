@@ -101,15 +101,11 @@ namespace HoneyBear.HalClient.Unit.Tests
             return this;
         }
 
-        public void ArrangePagedResource()
-        {
+        public void ArrangePagedResource() =>
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceJson());
-        }
 
-        public void ArrangePagedResourceWithEmbeddedArrayOfResources()
-        {
+        public void ArrangePagedResourceWithEmbeddedArrayOfResources() =>
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceWithEmbeddedArrayOfResourcesJson());
-        }
 
         public void ArrangePagedResourceWithLinkedArrayOfResources()
         {
@@ -117,10 +113,8 @@ namespace HoneyBear.HalClient.Unit.Tests
             ArrangeGet($"/v1/orderitem?orderRef={OrderRef}", CreatePagedResourceWithArrayOfResourcesJson());
         }
 
-        public void ArrangeDefaultPagedResource()
-        {
+        public void ArrangeDefaultPagedResource() =>
             ArrangeGet("/v1/order", CreateDefaultPagedResourceJson());
-        }
 
         public void ArrangeCreatedResource()
         {
@@ -140,63 +134,48 @@ namespace HoneyBear.HalClient.Unit.Tests
             ArrangePatch($"/v1/order/{OrderRef}", content);
         }
 
-        public void ArrangeDeletedResource()
-        {
+        public void ArrangeDeletedResource() =>
             ArrangeDelete($"/v1/order/{OrderRef}");
-        }
 
-        public void ArrangeResourceWithJsonAttribute()
-        {
+        public void ArrangeResourceWithJsonAttribute() =>
             ArrangeGet("/v1/resourcewithjsonattribute", CreateResourceWithJsonAttribute());
-        }
 
-        private void ArrangeGet(string uri, object content)
-        {
+        private void ArrangeGet(string uri, object content) =>
             _http
                 .Expect(h => h.GetAsync(uri))
                 .Return(Ok(content));
-        }
 
-        private void ArrangePost(string uri, object content)
-        {
+        private void ArrangePost(string uri, object content) =>
             _http
                 .Expect(h => h.PostAsync(Arg<string>.Is.Equal(uri), Arg<object>.Is.Anything))
                 .Return(Ok(content))
                 .IgnoreArguments();
-        }
 
-        private void ArrangePut(string uri, object content)
-        {
+        private void ArrangePut(string uri, object content) =>
             _http
                 .Expect(h => h.PutAsync(Arg<string>.Is.Equal(uri), Arg<object>.Is.Anything))
                 .Return(Ok(content));
-        }
 
-        private void ArrangePatch(string uri, object content)
-        {
+        private void ArrangePatch(string uri, object content) =>
             _http
                 .Expect(h => h.PatchAsync(Arg<string>.Is.Equal(uri), Arg<object>.Is.Anything))
                 .Return(Ok(content));
-        }
 
-        private void ArrangeDelete(string uri)
-        {
+        private void ArrangeDelete(string uri) =>
             _http
                 .Expect(h => h.DeleteAsync(uri))
                 .Return(Ok());
-        }
 
-        public void ArrangeFailedHomeRequest()
-        {
+        public void ArrangeFailedHomeRequest() =>
             _http
                 .Expect(h => h.GetAsync(RootUri))
                 .Return(NotFound());
-        }
 
-        public void Act(Func<IHalClient, IHalClient> act)
-        {
+        public void Act(Func<IHalClient, IHalClient> act) =>
             _result = act(_sut);
-        }
+
+        public void ActAsync(Func<IHalClient, Task<IHalClient>> act) =>
+            _result = act(_sut).Result;
 
         public void AssertThatRootResourceIsPresent()
         {
@@ -256,30 +235,20 @@ namespace HoneyBear.HalClient.Unit.Tests
             _order.AsSource().OfLikeness<Order>().ShouldEqual(resource);
         }
 
-        public void AssertThatResourceWasDeleted()
-        {
+        public void AssertThatResourceWasDeleted() =>
             _http.VerifyAllExpectations();
-        }
 
-        public void AssertThatResourceHasRelationship()
-        {
+        public void AssertThatResourceHasRelationship() =>
             _result.Has("order-edit", Curie).Should().BeTrue("Resource should have relationship");
-        }
 
-        public void AssertThatResourceHasRelationshipWithoutCurie()
-        {
+        public void AssertThatResourceHasRelationshipWithoutCurie() =>
             _result.Has("order-edit").Should().BeTrue("Resource should have relationship");
-        }
 
-        public void AssertThatResourceDoesNotHasRelationship()
-        {
+        public void AssertThatResourceDoesNotHasRelationship() =>
             _result.Has("whatever", Curie).Should().BeFalse("Resource should not have relationship");
-        }
 
-        public void AssertThatResourceDoesNotHasRelationshipWithoutCurie()
-        {
+        public void AssertThatResourceDoesNotHasRelationshipWithoutCurie() =>
             _result.Has("whatever").Should().BeFalse("Resource should not have relationship");
-        }
 
         public void AssertThatHttpClientCanBeProvided()
         {
@@ -295,10 +264,8 @@ namespace HoneyBear.HalClient.Unit.Tests
             sut.HttpClient.BaseAddress.Should().BeNull("Because it hasn't been set.");
         }
 
-        public void AssertThatResolvingResourceThrowsExceptionWhenResourceNotNavigated()
-        {
+        public void AssertThatResolvingResourceThrowsExceptionWhenResourceNotNavigated() =>
             Assert.Throws<NoActiveResource>(() => _sut.Item<Order>());
-        }
 
         public void AssertThatResourceWithJsonAttributeIsPresent()
         {

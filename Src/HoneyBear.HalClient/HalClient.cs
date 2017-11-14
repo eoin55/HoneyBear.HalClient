@@ -119,7 +119,9 @@ namespace HoneyBear.HalClient
         /// Makes a HTTP GET request to the default URI and stores the returned resource.
         /// </summary>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        public IHalClient Root() => Execute(string.Empty, uri => _client.GetAsync(uri));
+        public IHalClient Root() => Root(string.Empty);
+
+        internal Task<IHalClient> RootAsync() => RootAsync(string.Empty);
 
         /// <summary>
         /// Makes a HTTP GET request to the given URL and stores the returned resource.
@@ -129,7 +131,14 @@ namespace HoneyBear.HalClient
         public IHalClient Root(string href) => Execute(href, uri => _client.GetAsync(uri));
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Makes a HTTP GET request to the given URL and stores the returned resource.
+        /// </summary>
+        /// <param name="href">The URI to request.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        public Task<IHalClient> RootAsync(string href) => ExecuteAsync(href, uri => _client.GetAsync(uri));
+
+        /// <summary>
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
@@ -137,7 +146,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(string rel) => Get(rel, null, null);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
@@ -146,7 +155,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(string rel, string curie) => Get(rel, null, curie);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -156,7 +165,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(string rel, object parameters) => Get(rel, parameters, null);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
@@ -179,7 +188,29 @@ namespace HoneyBear.HalClient
         }
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public async Task<IHalClient> GetAsync(string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            var embedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
+            if (embedded != null)
+            {
+                var current = embedded.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
+            }
+
+            return await BuildAndExecuteAsync(relationship, parameters, uri => _client.GetAsync(uri));
+        }
+
+        /// <summary>
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
@@ -188,7 +219,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(IResource resource, string rel) => Get(resource, rel, null, null);
 
         /// <summary>
-        /// Navigates the given link relation and stores the the returned resource(s).
+        /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
@@ -198,7 +229,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(IResource resource, string rel, string curie) => Get(resource, rel, null, curie);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -209,7 +240,7 @@ namespace HoneyBear.HalClient
         public IHalClient Get(IResource resource, string rel, object parameters) => Get(resource, rel, parameters, null);
 
         /// <summary>
-        /// Navigates the given templated link relation and stores the the returned resource(s).
+        /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -233,6 +264,32 @@ namespace HoneyBear.HalClient
                 throw new FailedToResolveRelationship(relationship);
 
             return Execute(Construct(link, parameters), uri => _client.GetAsync(uri));
+        }
+
+        /// <summary>
+        /// Navigates the given templated link relation and stores the returned resource(s).
+        /// </summary>
+        /// <param name="resource">The current <see cref="IResource"/>.</param>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public async Task<IHalClient> GetAsync(IResource resource, string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            if (resource.Embedded.Any(e => e.Rel == relationship))
+            {
+                var current = resource.Embedded.Where(e => e.Rel == relationship);
+                return new HalClient(this, current);
+            }
+
+            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            if (link == null)
+                throw new FailedToResolveRelationship(relationship);
+
+            return await ExecuteAsync(Construct(link, parameters), uri => _client.GetAsync(uri));
         }
 
         /// <summary>
@@ -283,6 +340,22 @@ namespace HoneyBear.HalClient
         }
 
         /// <summary>
+        /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to POST.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public Task<IHalClient> PostAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PostAsync(uri, value));
+        }
+
+        /// <summary>
         /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
         /// <param name="rel">The templated link relation to follow.</param>
@@ -327,6 +400,22 @@ namespace HoneyBear.HalClient
             var relationship = Relationship(rel, curie);
 
             return BuildAndExecute(relationship, parameters, uri => _client.PutAsync(uri, value));
+        }
+
+        /// <summary>
+        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PUT.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public Task<IHalClient> PutAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PutAsync(uri, value));
         }
 
         /// <summary>
@@ -376,6 +465,21 @@ namespace HoneyBear.HalClient
             return BuildAndExecute(relationship, parameters, uri => _client.PatchAsync(uri, value));
         }
 
+        /// <summary>
+        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="value">The payload to PATCH.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public Task<IHalClient> PatchAsync(string rel, object value, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.PatchAsync(uri, value));
+        }
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
@@ -421,6 +525,21 @@ namespace HoneyBear.HalClient
         }
 
         /// <summary>
+        /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
+        /// </summary>
+        /// <param name="rel">The templated link relation to follow.</param>
+        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
+        /// <param name="curie">The curie of the link relation.</param>
+        /// <returns>The updated <see cref="IHalClient"/>.</returns>
+        /// <exception cref="AggregateException" />
+        public Task<IHalClient> DeleteAsync(string rel, object parameters, string curie)
+        {
+            var relationship = Relationship(rel, curie);
+
+            return BuildAndExecuteAsync(relationship, parameters, uri => _client.DeleteAsync(uri));
+        }
+
+        /// <summary>
         /// Determines whether the most recently navigated resource contains the given link relation.
         /// </summary>
         /// <param name="rel">The link relation to look for.</param>
@@ -452,10 +571,32 @@ namespace HoneyBear.HalClient
             return Execute(Construct(link, parameters), command);
         }
 
+        internal Task<IHalClient> BuildAndExecuteAsync(string relationship, object parameters, Func<string, Task<HttpResponseMessage>> command)
+        {
+            var resource = _current.FirstOrDefault(r => r.Links.Any(l => l.Rel == relationship));
+            if (resource == null)
+                throw new FailedToResolveRelationship(relationship);
+
+            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            return ExecuteAsync(Construct(link, parameters), command);
+        }
+
         private IHalClient Execute(string uri, Func<string, Task<HttpResponseMessage>> command)
         {
             var result = command(uri).Result;
 
+            return Process(result);
+        }
+
+        internal async Task<IHalClient> ExecuteAsync(string uri, Func<string, Task<HttpResponseMessage>> command)
+        {
+            var result = await command(uri);
+
+            return Process(result);
+        }
+
+        private IHalClient Process(HttpResponseMessage result)
+        {
             AssertSuccessfulStatusCode(result);
 
             var current =

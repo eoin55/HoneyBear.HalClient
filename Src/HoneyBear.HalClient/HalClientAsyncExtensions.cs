@@ -6,367 +6,325 @@ using HoneyBear.HalClient.Models;
 namespace HoneyBear.HalClient
 {
     /// <summary>
-    /// A lightweight fluent .NET client for navigating and consuming HAL APIs.
+    /// Provides asynchronous extension methods for <see cref="IHalClient"/>.
     /// </summary>
-    public interface IHalClient
+    public static class HalClientAsyncExtensions
     {
         /// <summary>
         /// Returns the most recently navigated resource of the specified type. 
         /// </summary>
         /// <typeparam name="T">The type of the resource to return.</typeparam>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <returns>The most recent navigated resource of the specified type.</returns>
         /// <exception cref="NoActiveResource" />
-        IResource<T> Item<T>() where T : class, new();
+        public static IResource<T> Item<T>(this Task<IHalClient> hal) where T : class, new() =>
+            hal.Result.Item<T>();
 
         /// <summary>
         /// Returns the list of embedded resources in the most recently navigated resource.
         /// </summary>
         /// <typeparam name="T">The type of the resource to return.</typeparam>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <returns>The list of embedded resources in the most recently navigated resource.</returns>
         /// <exception cref="NoActiveResource" />
-        IEnumerable<IResource<T>> Items<T>() where T : class, new();
+        public static IEnumerable<IResource<T>> Items<T>(this Task<IHalClient> hal) where T : class, new() =>
+            hal.Result.Items<T>();
 
         /// <summary>
         /// Makes a HTTP GET request to the default URI and stores the returned resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        IHalClient Root();
-
-        /// <summary>
-        /// Makes a HTTP GET request to the given URI and stores the returned resource.
-        /// </summary>
-        /// <param name="href">The URI to request.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        IHalClient Root(string href);
+        public static Task<IHalClient> RootAsync(this IHalClient hal) =>
+            hal.RootAsync(string.Empty);
 
         /// <summary>
         /// Makes a HTTP GET request to the given URL and stores the returned resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="href">The URI to request.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        Task<IHalClient> RootAsync(string href);
+        public static Task<IHalClient> RootAsync(this IHalClient hal, string href) =>
+            hal.RootAsync(href);
 
         /// <summary>
         /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Get(string rel);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, string rel) =>
+            hal.GetAsync(rel, null, null);
 
         /// <summary>
         /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Get(string rel, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, string rel, string curie) =>
+            hal.GetAsync(rel, null, curie);
 
         /// <summary>
         /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Get(string rel, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, string rel, object parameters) =>
+            hal.GetAsync(rel, parameters, null);
 
         /// <summary>
         /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Get(string rel, object parameters, string curie);
-
-        /// <summary>
-        /// Navigates the given templated link relation and stores the returned resource(s).
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> GetAsync(string rel, object parameters, string curie);
+        public static async Task<IHalClient> GetAsync(this Task<IHalClient> hal, string rel, object parameters, string curie) =>
+            await (await hal).GetAsync(rel, parameters, curie);
 
         /// <summary>
         /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Get(IResource resource, string rel);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, IResource resource, string rel) =>
+            hal.GetAsync(resource, rel, null, null);
 
         /// <summary>
         /// Navigates the given link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Get(IResource resource, string rel, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, IResource resource, string rel, string curie) =>
+            hal.GetAsync(resource, rel, null, curie);
 
         /// <summary>
         /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Get(IResource resource, string rel, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> GetAsync(this Task<IHalClient> hal, IResource resource, string rel, object parameters) =>
+            hal.GetAsync(resource, rel, parameters, null);
 
         /// <summary>
         /// Navigates the given templated link relation and stores the returned resource(s).
         /// </summary>
-        /// <param name="resource">The current <see cref="IResource"/>.</param>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Get(IResource resource, string rel, object parameters, string curie);
-
-        /// <summary>
-        /// Navigates the given templated link relation and stores the returned resource(s).
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="resource">The current <see cref="IResource"/>.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> GetAsync(IResource resource, string rel, object parameters, string curie);
+        public static async Task<IHalClient> GetAsync(this Task<IHalClient> hal, IResource resource, string rel, object parameters, string curie) =>
+            await (await hal).GetAsync(resource, rel, parameters, curie);
 
         /// <summary>
         /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Post(string rel, object value);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PostAsync(this Task<IHalClient> hal, string rel, object value) =>
+            hal.PostAsync(rel, value, null, null);
 
         /// <summary>
         /// Makes a HTTP POST request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Post(string rel, object value, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PostAsync(this Task<IHalClient> hal, string rel, object value, string curie) =>
+            hal.PostAsync(rel, value, null, curie);
 
         /// <summary>
         /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Post(string rel, object value, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PostAsync(this Task<IHalClient> hal, string rel, object value, object parameters) =>
+            hal.PostAsync(rel, value, parameters, null);
 
         /// <summary>
         /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
         /// </summary>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="value">The payload to POST.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Post(string rel, object value, object parameters, string curie);
-
-        /// <summary>
-        /// Makes a HTTP POST request to the given templated link relation on the most recently navigated resource.
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to POST.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> PostAsync(string rel, object value, object parameters, string curie);
+        public static async Task<IHalClient> PostAsync(this Task<IHalClient> hal, string rel, object value, object parameters, string curie) =>
+            await (await hal).PostAsync(rel, value, parameters, curie);
 
         /// <summary>
         /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Put(string rel, object value);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PutAsync(this Task<IHalClient> hal, string rel, object value) =>
+            hal.PutAsync(rel, value, null, null);
 
         /// <summary>
         /// Makes a HTTP PUT request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Put(string rel, object value, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PutAsync(this Task<IHalClient> hal, string rel, object value, string curie) =>
+            hal.PutAsync(rel, value, null, curie);
 
         /// <summary>
         /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Put(string rel, object value, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PutAsync(this Task<IHalClient> hal, string rel, object value, object parameters) =>
+            hal.PutAsync(rel, value, parameters, null);
 
         /// <summary>
         /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
         /// </summary>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="value">The payload to PUT.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Put(string rel, object value, object parameters, string curie);
-
-        /// <summary>
-        /// Makes a HTTP PUT request to the given templated link relation on the most recently navigated resource.
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PUT.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> PutAsync(string rel, object value, object parameters, string curie);
+        public static async Task<IHalClient> PutAsync(this Task<IHalClient> hal, string rel, object value, object parameters, string curie) =>
+            await (await hal).PutAsync(rel, value, parameters, curie);
 
         /// <summary>
         /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PATCH.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Patch(string rel, object value);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PatchAsync(this Task<IHalClient> hal, string rel, object value) =>
+            hal.PatchAsync(rel, value, null, null);
 
         /// <summary>
         /// Makes a HTTP PATCH request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="value">The payload to PATCH.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Patch(string rel, object value, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PatchAsync(this Task<IHalClient> hal, string rel, object value, string curie) =>
+            hal.PatchAsync(rel, value, null, curie);
 
         /// <summary>
         /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PATCH.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Patch(string rel, object value, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> PatchAsync(this Task<IHalClient> hal, string rel, object value, object parameters) =>
+            hal.PatchAsync(rel, value, parameters, null);
 
         /// <summary>
         /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
         /// </summary>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="value">The payload to PATCH.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Patch(string rel, object value, object parameters, string curie);
-
-        /// <summary>
-        /// Makes a HTTP PATCH request to the given templated link relation on the most recently navigated resource.
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="value">The payload to PATCH.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> PatchAsync(string rel, object value, object parameters, string curie);
+        public static async Task<IHalClient> PatchAsync(this Task<IHalClient> hal, string rel, object value, object parameters, string curie) =>
+            await (await hal).PatchAsync(rel, value, parameters, curie);
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Delete(string rel);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> DeleteAsync(this Task<IHalClient> hal, string rel) =>
+            hal.DeleteAsync(rel, null, null);
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The link relation to follow.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        IHalClient Delete(string rel, string curie);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> DeleteAsync(this Task<IHalClient> hal, string rel, string curie) =>
+            hal.DeleteAsync(rel, null, curie);
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
         /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Delete(string rel, object parameters);
+        /// <exception cref="AggregateException" />
+        public static Task<IHalClient> DeleteAsync(this Task<IHalClient> hal, string rel, object parameters) =>
+            hal.DeleteAsync(rel, parameters, null);
 
         /// <summary>
         /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
         /// </summary>
-        /// <param name="rel">The templated link relation to follow.</param>
-        /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>The updated <see cref="IHalClient"/>.</returns>
-        /// <exception cref="FailedToResolveRelationship" />
-        /// <exception cref="TemplateParametersAreRequired" />
-        IHalClient Delete(string rel, object parameters, string curie);
-
-        /// <summary>
-        /// Makes a HTTP DELETE request to the given templated link relation on the most recently navigated resource.
-        /// </summary>
+        /// <param name="hal">The instance of <see cref="IHalClient"/> to extend.</param>
         /// <param name="rel">The templated link relation to follow.</param>
         /// <param name="parameters">An anonymous object containing the template parameters to apply.</param>
         /// <param name="curie">The curie of the link relation.</param>
         /// <returns>The updated <see cref="IHalClient"/>.</returns>
         /// <exception cref="AggregateException" />
-        Task<IHalClient> DeleteAsync(string rel, object parameters, string curie);
-
-        /// <summary>
-        /// Determines whether the most recently navigated resource contains the given link relation.
-        /// </summary>
-        /// <param name="rel">The link relation to look for.</param>
-        /// <returns>Whether or not the link relation exists.</returns>
-        bool Has(string rel);
-
-        /// <summary>
-        /// Determines whether the most recently navigated resource contains the given link relation.
-        /// </summary>
-        /// <param name="rel">The link relation to look for.</param>
-        /// <param name="curie">The curie of the link relation.</param>
-        /// <returns>Whether or not the link relation exists.</returns>
-        bool Has(string rel, string curie);
+        public static async Task<IHalClient> DeleteAsync(this Task<IHalClient> hal, string rel, object parameters, string curie) =>
+            await (await hal).DeleteAsync(rel, parameters, curie);
     }
 }

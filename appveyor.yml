@@ -1,8 +1,10 @@
-version: 2.0.{build}
+version: 2.1.{build}
 image: Visual Studio 2017
 skip_tags: true
 configuration: Release
 platform: Any CPU
+environment:
+  APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
 before_build:
 - msbuild -t:restore .\Src\HoneyBear.HalClient.sln
 build:
