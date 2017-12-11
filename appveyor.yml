@@ -26,8 +26,8 @@ after_build:
         -p:configuration=$env:CONFIGURATION `
         -p:packageversion=$env:APPVEYOR_BUILD_VERSION `
         -p:authors="Eoin O'Connor" `
-        -p:licenseurl=https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE `
-        -p:projecturl=https://github.com/eoin55/HoneyBear.HalClient `
+        -p:packagelicenseurl=https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE `
+        -p:packageprojecturl=https://github.com/eoin55/HoneyBear.HalClient `
         -p:description="A lightweight fluent .NET client for navigating and consuming HAL APIs.  Includes support for .NET Core." `
         -p:copyright="Copyright � Eoin O'Connor 2017" `
         -p:packagetags="HAL JSON Hypermedia HATEOAS REST DotNetCore" `
