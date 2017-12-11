@@ -51,10 +51,10 @@ halClent.HttpClient.BaseAddress = new Uri("https://api.retail.com/");
 #### (Optional) Custom serializer settings
 HalClient uses the default JsonMediaTypeFormatter for handling deserialization of responses. If you need to change any of the settings (for handling null values, missing properties, custom date formats and so on), you can build a custom MediaTypeFormatter by subclassing JsonMediaTypeFormatter, and then passing it in to the HalClient constructor:
 ```cs
-public class CustomMediaTypeFormatter : JsonMediaTypeFormatter 
+public class CustomMediaTypeFormatter : JsonMediaTypeFormatter
 {
     SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-    
+
     SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/hal+json"));
 }
 
@@ -214,6 +214,21 @@ client
 1. GET https://api.retail.com/v1/version/1
 2. GET https://api.retail.com/v1/order/46AC5C29-B8EB-43E7-932E-19167DA9F5D3
 3. DELETE https://api.retail.com/v1/order/46AC5C29-B8EB-43E7-932E-19167DA9F5D3
+
+### 8) Retrieve a resource's links
+```cs
+IList<ILink> links =
+    client
+        .Root("/v1/version/1")
+        .Get("order", new {orderRef = "46AC5C29-B8EB-43E7-932E-19167DA9F5D3"}, "retail")
+        .Item<Order>()
+        .Links;
+```
+
+1. GET https://api.retail.com/v1/version/1
+2. GET https://api.retail.com/v1/order/46AC5C29-B8EB-43E7-932E-19167DA9F5D3
+3. Reads *Order* resource
+4. Returns the *Order* resource's *links*, e.g. *self*, *retail:order-edit*, *retail:order-delete*.
 
 ## Dependency Injection
 
