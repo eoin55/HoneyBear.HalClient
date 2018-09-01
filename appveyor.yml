@@ -3,7 +3,6 @@ image: Visual Studio 2017
 skip_tags: true
 configuration: Release
 platform: Any CPU
-publish_nuget: true
 environment:
   APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
 dotnet_csproj:
@@ -16,6 +15,7 @@ dotnet_csproj:
   informational_version: '{version}'
 build:
   project: .\Src\HoneyBear.HalClient.sln
+  publish_nuget: true
 after_test:
 - ps: >-
     . $env:USERPROFILE\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe `
