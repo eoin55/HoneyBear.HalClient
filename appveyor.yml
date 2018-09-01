@@ -13,6 +13,8 @@ dotnet_csproj:
   assembly_version: '{version}'
   file_version: '{version}'
   informational_version: '{version}'
+before_build:
+- dotnet restore .\Src\HoneyBear.HalClient.sln
 build:
   project: .\Src\HoneyBear.HalClient.sln
   publish_nuget: true
