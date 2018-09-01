@@ -8,12 +8,12 @@ environment:
   APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
 dotnet_csproj:
   patch: true
-  file: "**\*.csproj"
-  version: "{version}"
-  package_version: "{version}"
-  assembly_version: "{version}"
-  file_version: "{version}"
-  informational_version: "{version}"
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
 build:
   project: .\Src\HoneyBear.HalClient.sln
 after_test:
