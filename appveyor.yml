@@ -4,19 +4,22 @@ skip_tags: true
 configuration: Release
 environment:
   APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
-dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: '{version}'
-  package_version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{version}'
-  informational_version: '{version}'
-before_build:
-- dotnet restore .\Src\HoneyBear.HalClient.sln
 build:
-  project: .\Src\HoneyBear.HalClient.sln
-  publish_nuget: true
+- ps: >-
+    $assemblyVersion = ${env:APPVEYOR_BUILD_VERSION}
+    $packageVersion = ${env:APPVEYOR_BUILD_VERSION}
+
+    if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
+        $packageVersion = "$packageVersion-alpha"
+    }
+
+    dotnet build .\Src\HoneyBear.HalClient.sln `
+        -c $env:CONFIGURATION `
+        -p:AssemblyVersion=$assemblyVersion `
+        -p:FileVersion=$assemblyVersion `
+        -p:PackageVersion=$packageVersion `
+        -p:Version=$packageVersion `
+        -p:packageoutputpath=$pwd\artifacts
 after_test:
 - ps: >-
     . $env:USERPROFILE\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe `
@@ -31,4 +34,4 @@ after_test:
         --repo-token hOBugtrP7A2crVX8BA0cT9E8GjnlK8bcP
 deploy: off
 artifacts:
-- path: .\Src\HoneyBear.HalClient\bin\**\*.nupkg
+- path: .\artifacts\*.nupkg
