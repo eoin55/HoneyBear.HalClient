@@ -4,7 +4,7 @@ skip_tags: true
 configuration: Release
 environment:
   APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
-build:
+build_script:
 - ps: >-
     $assemblyVersion = ${env:APPVEYOR_BUILD_VERSION}
     $packageVersion = ${env:APPVEYOR_BUILD_VERSION}
