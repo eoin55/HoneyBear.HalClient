@@ -1,44 +1,33 @@
-version: 2.1.{build}
+version: 2.2.{build}
 image: Visual Studio 2017
 skip_tags: true
 configuration: Release
-platform: Any CPU
 environment:
   APPVEYOR_BLOCK_DOTNETCORE_TESTS_AUTORUN: true
-before_build:
-- msbuild -t:restore .\Src\HoneyBear.HalClient.sln
-build:
-  project: .\Src\HoneyBear.HalClient.sln
-after_build:
+build_script:
 - ps: >-
-    $csproj = Get-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj -raw | `
-        % {$_ -replace "<AssemblyVersion>1.0.0.0</AssemblyVersion>", "<AssemblyVersion>$env:APPVEYOR_BUILD_VERSION</AssemblyVersion>"} | `
-        % {$_ -replace "<FileVersion>1.0.0.0</FileVersion>", "<FileVersion>$env:APPVEYOR_BUILD_VERSION</FileVersion>"} | `
-        % {$_ -replace "<Version>1.0.0.0</Version>", "<Version>$env:APPVEYOR_BUILD_VERSION</Version>"}
+    $assemblyVersion = ${env:APPVEYOR_BUILD_VERSION}
 
-    $csproj | Set-Content .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj
+    $packageVersion = ${env:APPVEYOR_BUILD_VERSION}
 
     if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
-       Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha"
+        $packageVersion = "$packageVersion-alpha"
     }
 
-    msbuild -t:pack .\Src\HoneyBear.HalClient\HoneyBear.HalClient.csproj `
-        -p:configuration=$env:CONFIGURATION `
-        -p:packageversion=$env:APPVEYOR_BUILD_VERSION `
-        -p:authors="Eoin O'Connor" `
-        -p:packagelicenseurl=https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE `
-        -p:packageprojecturl=https://github.com/eoin55/HoneyBear.HalClient `
-        -p:description="A lightweight fluent .NET client for navigating and consuming HAL APIs.  Includes support for .NET Core." `
-        -p:copyright="Copyright � Eoin O'Connor 2017" `
-        -p:packagetags="HAL JSON Hypermedia HATEOAS REST DotNetCore" `
+    dotnet build .\Src\HoneyBear.HalClient.sln `
+        -c $env:CONFIGURATION `
+        -p:AssemblyVersion=$assemblyVersion `
+        -p:FileVersion=$assemblyVersion `
+        -p:PackageVersion=$packageVersion `
+        -p:Version=$packageVersion `
         -p:packageoutputpath=$pwd\artifacts
 after_test:
 - ps: >-
     . $env:USERPROFILE\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe `
         -register:user `
         -filter:"+[HoneyBear.HalClient]*" `
-        -target:"$env:USERPROFILE\.nuget\packages\NUnit.ConsoleRunner\3.7.0\tools\nunit3-console.exe" `
-        -targetargs:".\Src\HoneyBear.HalClient.Unit.Tests\bin\$env:CONFIGURATION\net452\HoneyBear.HalClient.Unit.Tests.dll" `
+        -target:"$env:USERPROFILE\.nuget\packages\NUnit.ConsoleRunner\3.8.0\tools\nunit3-console.exe" `
+        -targetargs:".\Src\HoneyBear.HalClient.Unit.Tests\bin\$env:CONFIGURATION\net471\HoneyBear.HalClient.Unit.Tests.dll" `
         -output:coverage.xml
 
     . $env:USERPROFILE\.nuget\packages\coveralls.io\1.4.2\tools\coveralls.net.exe `

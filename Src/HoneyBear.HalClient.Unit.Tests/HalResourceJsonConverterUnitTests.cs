@@ -1,10 +1,10 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using AutoFixture.AutoRhinoMock;
+using FluentAssertions;
 using HoneyBear.HalClient.Models;
 using HoneyBear.HalClient.Serialization;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoRhinoMock;
 
 namespace HoneyBear.HalClient.Unit.Tests
 {
