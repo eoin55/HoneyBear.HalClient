@@ -7,6 +7,7 @@ environment:
 build_script:
 - ps: >-
     $assemblyVersion = ${env:APPVEYOR_BUILD_VERSION}
+    
     $packageVersion = ${env:APPVEYOR_BUILD_VERSION}
 
     if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
