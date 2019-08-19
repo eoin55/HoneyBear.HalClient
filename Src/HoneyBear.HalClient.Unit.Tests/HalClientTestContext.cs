@@ -25,9 +25,11 @@ namespace HoneyBear.HalClient.Unit.Tests
         public const string RootUri = "/v1/version/1";
         public const string Curie = "retail";
         public Guid OrderRef => _order.OrderRef;
+        public Guid OrderItemRef => _orderItem.OrderItemRef;
         public OrderAdd OrderAdd { get; }
         public OrderEdit OrderEdit { get; }
         public static readonly Guid UserRef = Guid.NewGuid();
+        public static readonly Guid NonExistentOrderRef = Guid.NewGuid();
 
         private readonly IHalClient _sut;
         private readonly IJsonHttpClient _http;
@@ -35,6 +37,7 @@ namespace HoneyBear.HalClient.Unit.Tests
         private readonly dynamic _curies;
         private readonly Version _version;
         private readonly Order _order;
+        private readonly Order _otherOrder;
         private readonly OrderItem _orderItem;
         private readonly PagedList _paged;
         private bool _hasCurie;
@@ -48,7 +51,8 @@ namespace HoneyBear.HalClient.Unit.Tests
             _http = _fixture.Freeze<IJsonHttpClient>();
 
             _version = _fixture.Create<Version>();
-            _order = _fixture.Build<Order>().With(x => x.DeliveryDate, null).Create();
+            _order = _fixture.Build<Order>().With(x => x.OrderNumber, "2").With(x => x.DeliveryDate, null).Create();
+            _otherOrder = _fixture.Build<Order>().With(x => x.OrderNumber, "1").Create();
             _orderItem = _fixture.Create<OrderItem>();
             _paged = _fixture.Create<PagedList>();
             OrderAdd = _fixture.Create<OrderAdd>();
@@ -101,8 +105,19 @@ namespace HoneyBear.HalClient.Unit.Tests
             return this;
         }
 
-        public void ArrangePagedResource() =>
+        public HalClientTestContext ArrangePagedResource()
+        {
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceJson());
+
+            return this;
+        }
+
+        public HalClientTestContext ArrangePagedResourceWithLinkedResources()
+        {
+            ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceWithLinkedResourcesJson());
+
+            return this;
+        }
 
         public void ArrangePagedResourceWithEmbeddedArrayOfResources() =>
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceWithEmbeddedArrayOfResourcesJson());
@@ -110,7 +125,7 @@ namespace HoneyBear.HalClient.Unit.Tests
         public void ArrangePagedResourceWithLinkedArrayOfResources()
         {
             ArrangeGet($"/v1/order?userRef={UserRef}", CreatePagedResourceWithLinkedArrayOfResourcesJson());
-            ArrangeGet($"/v1/orderitem?orderRef={OrderRef}", CreatePagedResourceWithArrayOfResourcesJson());
+            ArrangeGet($"/v1/orderitem?orderRef={OrderRef}", CreatePagedResourceWithArrayOfResourcesJson(OrderRef));
         }
 
         public void ArrangeDefaultPagedResource() =>
@@ -169,6 +184,11 @@ namespace HoneyBear.HalClient.Unit.Tests
         public void ArrangeFailedHomeRequest() =>
             _http
                 .Expect(h => h.GetAsync(RootUri))
+                .Return(NotFound());
+
+        public void ArrangeFailedOrderRequest() =>
+            _http
+                .Expect(h => h.GetAsync($"/v1/order/{NonExistentOrderRef}"))
                 .Return(NotFound());
 
         public void Act(Func<IHalClient, IHalClient> act) =>
@@ -363,12 +383,13 @@ namespace HoneyBear.HalClient.Unit.Tests
                         curies = _curies,
                         self = new {href = $"/v1/order/{OrderRef}"},
                         retail_order_edit = new {href = $"/v1/order/{OrderRef}"},
-                        retail_order_delete = new {href = $"/v1/order/{OrderRef}"}
+                        retail_order_delete = new {href = $"/v1/order/{OrderRef}"},
+                        retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={OrderRef}"}
                     },
                 _embedded =
                     new
                     {
-                        retail_orderitem =
+                        retail_orderitem_query =
                             new[]
                             {
                                 new
@@ -402,12 +423,13 @@ namespace HoneyBear.HalClient.Unit.Tests
                     {
                         self = new {href = $"/v1/order/{OrderRef}"},
                         order_edit = new {href = $"/v1/order/{OrderRef}"},
-                        order_delete = new {href = $"/v1/order/{OrderRef}"}
+                        order_delete = new {href = $"/v1/order/{OrderRef}"},
+                        orderitem_query = new {href = $"/v1/orderitem?orderRef={OrderRef}"}
                     },
                 _embedded =
                     new
                     {
-                        orderitem =
+                        orderitem_query =
                             new[]
                             {
                                 new
@@ -439,7 +461,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = $"/v1/order?userRef={UserRef}"}
+                        self = new {href = $"/v1/order?userRef={UserRef}"},
+                        retail_order = new {href = "/v1/order/{orderRef}", templated = true}
                     },
                 _embedded =
                     new
@@ -447,6 +470,19 @@ namespace HoneyBear.HalClient.Unit.Tests
                         retail_order =
                             new[]
                             {
+                                new
+                                {
+                                    _otherOrder.OrderRef,
+                                    _otherOrder.OrderNumber,
+                                    _otherOrder.Status,
+                                    _otherOrder.Total,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/order/{_otherOrder.OrderRef}"}
+                                        }
+                                },
                                 new
                                 {
                                     _order.OrderRef,
@@ -457,10 +493,26 @@ namespace HoneyBear.HalClient.Unit.Tests
                                         new
                                         {
                                             curies = _curies,
-                                            self = new {href = $"/v1/order/{OrderRef}"}
+                                            self = new {href = $"/v1/order/{_order.OrderRef}"}
                                         }
                                 }
                             }
+                    }
+            };
+
+        private object CreatePagedResourceWithLinkedResourcesJson() =>
+            new
+            {
+                _paged.PageNumber,
+                _paged.PageSize,
+                _paged.KnownPagesAvailable,
+                _paged.TotalItemsCount,
+                _links =
+                    new
+                    {
+                        curies = _curies,
+                        self = new {href = $"/v1/order?userRef={UserRef}"},
+                        retail_order = new {href = "/v1/order/{orderRef}", templated = true}
                     }
             };
 
@@ -475,7 +527,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = $"/v1/order?userRef={UserRef}"}
+                        self = new {href = $"/v1/order?userRef={UserRef}"},
+                        retail_order = new {href = "/v1/order/{orderRef}", templated = true}
                     },
                 _embedded =
                     new
@@ -483,6 +536,26 @@ namespace HoneyBear.HalClient.Unit.Tests
                         retail_order =
                             new[]
                             {
+                                new
+                                {
+                                    _otherOrder.OrderRef,
+                                    _otherOrder.OrderNumber,
+                                    _otherOrder.Status,
+                                    _otherOrder.DeliveryDate,
+                                    _otherOrder.Total,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/order/{_otherOrder.OrderRef}"},
+                                            retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={_otherOrder.OrderRef}"}
+                                        },
+                                    _embedded =
+                                        new
+                                        {
+                                            retail_orderitem_query = CreatePagedResourceWithArrayOfResourcesJson(_otherOrder.OrderRef)
+                                        }
+                                },
                                 new
                                 {
                                     _order.OrderRef,
@@ -494,12 +567,13 @@ namespace HoneyBear.HalClient.Unit.Tests
                                         new
                                         {
                                             curies = _curies,
-                                            self = new {href = $"/v1/order/{OrderRef}"}
+                                            self = new {href = $"/v1/order/{_order.OrderRef}"},
+                                            retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={_order.OrderRef}"}
                                         },
                                     _embedded =
                                         new
                                         {
-                                            retail_orderitem_query = CreatePagedResourceWithArrayOfResourcesJson()
+                                            retail_orderitem_query = CreatePagedResourceWithArrayOfResourcesJson(_order.OrderRef)
                                         }
                                 }
                             }
@@ -517,7 +591,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = $"/v1/order?userRef={UserRef}"}
+                        self = new {href = $"/v1/order?userRef={UserRef}"},
+                        retail_order = new {href = "/v1/order/{orderRef}", templated = true}
                     },
                 _embedded =
                     new
@@ -525,6 +600,21 @@ namespace HoneyBear.HalClient.Unit.Tests
                         retail_order =
                             new[]
                             {
+                                new
+                                {
+                                    _otherOrder.OrderRef,
+                                    _otherOrder.OrderNumber,
+                                    _otherOrder.Status,
+                                    _otherOrder.DeliveryDate,
+                                    _otherOrder.Total,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/order/{_otherOrder.OrderRef}"},
+                                            retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={_otherOrder.OrderRef}"}
+                                        }
+                                },
                                 new
                                 {
                                     _order.OrderRef,
@@ -536,16 +626,18 @@ namespace HoneyBear.HalClient.Unit.Tests
                                         new
                                         {
                                             curies = _curies,
-                                            self = new {href = $"/v1/order/{OrderRef}"},
-                                            retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={OrderRef}"}
+                                            self = new {href = $"/v1/order/{_order.OrderRef}"},
+                                            retail_orderitem_query = new {href = $"/v1/orderitem?orderRef={_order.OrderRef}"}
                                         }
                                 }
                             }
                     }
             };
 
-        private object CreatePagedResourceWithArrayOfResourcesJson() =>
-            new
+        private object CreatePagedResourceWithArrayOfResourcesJson(Guid orderRef)
+        {
+            var other = _fixture.Create<OrderItem>();
+            return new
             {
                 _paged.PageNumber,
                 _paged.PageSize,
@@ -555,7 +647,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = $"/v1/orderitem?orderRef={OrderRef}"}
+                        self = new {href = $"/v1/orderitem?orderRef={orderRef}"},
+                        retail_orderitem = new {href = "/v1/orderitem/{orderItemRef}", templated = true}
                     },
                 _embedded =
                     new
@@ -580,6 +673,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                             }
                     }
             };
+        }
 
         private object CreateDefaultPagedResourceJson() =>
             new
@@ -592,7 +686,8 @@ namespace HoneyBear.HalClient.Unit.Tests
                     new
                     {
                         curies = _curies,
-                        self = new {href = "/v1/order"}
+                        self = new {href = "/v1/order"},
+                        retail_order = new {href = "/v1/order/{orderRef}", templated = true}
                     },
                 _embedded =
                     new
@@ -600,6 +695,35 @@ namespace HoneyBear.HalClient.Unit.Tests
                         retail_order =
                             new[]
                             {
+                                new
+                                {
+                                    _otherOrder.OrderRef,
+                                    _otherOrder.OrderNumber,
+                                    _otherOrder.Status,
+                                    _otherOrder.DeliveryDate,
+                                    _otherOrder.Total,
+                                    _links =
+                                        new
+                                        {
+                                            curies = _curies,
+                                            self = new {href = $"/v1/order/{_otherOrder.OrderRef}"}
+                                        },
+                                    _embedded =
+                                        new
+                                        {
+                                            retail_user =
+                                                new
+                                                {
+                                                    UserRef,
+                                                    _links =
+                                                        new
+                                                        {
+                                                            curies = _curies,
+                                                            self = new {href = $"/v1/user/{UserRef}"}
+                                                        }
+                                                }
+                                        }
+                                },
                                 new
                                 {
                                     _order.OrderRef,
@@ -611,7 +735,7 @@ namespace HoneyBear.HalClient.Unit.Tests
                                         new
                                         {
                                             curies = _curies,
-                                            self = new {href = $"/v1/order/{OrderRef}"}
+                                            self = new {href = $"/v1/order/{_order.OrderRef}"}
                                         },
                                     _embedded =
                                         new
