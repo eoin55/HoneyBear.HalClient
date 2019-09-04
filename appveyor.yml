@@ -24,7 +24,7 @@ build_script:
 after_test:
 - ps: >-
     . $env:USERPROFILE\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe `
-        -register:Path32 `
+        -register:Path64 `
         -filter:"+[HoneyBear.HalClient]*" `
         -target:"$env:USERPROFILE\.nuget\packages\NUnit.ConsoleRunner\3.8.0\tools\nunit3-console.exe" `
         -targetargs:".\Src\HoneyBear.HalClient.Unit.Tests\bin\$env:CONFIGURATION\net471\HoneyBear.HalClient.Unit.Tests.dll" `
