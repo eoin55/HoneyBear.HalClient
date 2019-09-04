@@ -177,12 +177,8 @@ namespace HoneyBear.HalClient
         {
             var relationship = Relationship(rel, curie);
 
-            var embedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
-            if (embedded != null)
-            {
-                var current = embedded.Embedded.Where(e => e.Rel == relationship);
-                return new HalClient(this, current);
-            }
+            if (TryGetEmbedded(relationship, parameters, out var embedded))
+                return new HalClient(this, embedded);
 
             return BuildAndExecute(relationship, parameters, uri => _client.GetAsync(uri));
         }
@@ -199,12 +195,8 @@ namespace HoneyBear.HalClient
         {
             var relationship = Relationship(rel, curie);
 
-            var embedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
-            if (embedded != null)
-            {
-                var current = embedded.Embedded.Where(e => e.Rel == relationship);
-                return new HalClient(this, current);
-            }
+            if (TryGetEmbedded(relationship, parameters, out var embedded))
+                return new HalClient(this, embedded);
 
             return await BuildAndExecuteAsync(relationship, parameters, uri => _client.GetAsync(uri));
         }
@@ -253,15 +245,17 @@ namespace HoneyBear.HalClient
         {
             var relationship = Relationship(rel, curie);
 
-            if (resource.Embedded.Any(e => e.Rel == relationship))
-            {
-                var current = resource.Embedded.Where(e => e.Rel == relationship);
-                return new HalClient(this, current);
-            }
+            // If there are no parameters, check if there are any embedded resources with the given link relation
+            if (parameters == null && TryGetEmbedded(resource, relationship, out var embedded))
+                return new HalClient(this, embedded);
 
             var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
             if (link == null)
                 throw new FailedToResolveRelationship(relationship);
+
+            // If there are parameters, check if any of the embedded resources match on the self link URI
+            if (parameters != null && TryGetEmbedded(resource, relationship, parameters, link, out embedded))
+                return new HalClient(this, embedded);
 
             return Execute(Construct(link, parameters), uri => _client.GetAsync(uri));
         }
@@ -279,15 +273,17 @@ namespace HoneyBear.HalClient
         {
             var relationship = Relationship(rel, curie);
 
-            if (resource.Embedded.Any(e => e.Rel == relationship))
-            {
-                var current = resource.Embedded.Where(e => e.Rel == relationship);
-                return new HalClient(this, current);
-            }
+            // If there are no parameters, check if there are any embedded resources with the given link relation
+            if (parameters == null && TryGetEmbedded(resource, relationship, out var embedded))
+                return new HalClient(this, embedded);
 
             var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
             if (link == null)
                 throw new FailedToResolveRelationship(relationship);
+
+            // If there are parameters, check if any of the embedded resources match on the self link URI
+            if (parameters != null && TryGetEmbedded(resource, relationship, parameters, link, out embedded))
+                return new HalClient(this, embedded);
 
             return await ExecuteAsync(Construct(link, parameters), uri => _client.GetAsync(uri));
         }
@@ -561,23 +557,87 @@ namespace HoneyBear.HalClient
                 || _current.Any(r => r.Links.Any(l => l.Rel == relationship));
         }
 
+        private bool TryGetEmbedded(string relationship, object parameters, out IEnumerable<IResource> embedded)
+        {
+            embedded = null;
+
+            // If there are no parameters, check if there are any embedded resources with the given link relation
+            if (parameters == null)
+                return TryGetEmbedded(relationship, out embedded);
+
+            // Check if any of the current resource's links match the given link relation
+            var current = _current.FirstOrDefault(r => r.Links.Any(l => l.Rel == relationship));
+            if (current == null)
+                return false;
+
+            // Check if any of the embedded resources match on the self link URI
+            var allEmbedded = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship && e.Links.Any(s => s.Rel == "self")));
+            if (allEmbedded == null)
+                return false;
+
+            var linkUri = Construct(current.Links.First(l => l.Rel == relationship), parameters);
+
+            embedded =
+                allEmbedded.Embedded.Where(e =>
+                    e.Rel == relationship
+                    && e.Links.Any(s => s.Rel == "self")
+                    && Construct(e.Links.First(s => s.Rel == "self"), parameters) == linkUri);
+            return embedded.Any();
+        }
+
+        private bool TryGetEmbedded(string relationship, out IEnumerable<IResource> embedded)
+        {
+            var resource = _current.FirstOrDefault(r => r.Embedded.Any(e => e.Rel == relationship));
+            if (resource == null)
+            {
+                embedded = null;
+                return false;
+            }
+
+            embedded = resource.Embedded.Where(e => e.Rel == relationship);
+            return true;
+        }
+
+        private static bool TryGetEmbedded(IResource resource, string relationship, out IEnumerable<IResource> embedded)
+        {
+            if (resource.Embedded.Any(e => e.Rel == relationship))
+            {
+                embedded = resource.Embedded.Where(e => e.Rel == relationship);
+                return true;
+            }
+
+            embedded = null;
+            return false;
+        }
+
+        private static bool TryGetEmbedded(IResource resource, string relationship, object parameters, ILink link, out IEnumerable<IResource> embedded)
+        {
+            var linkUri = Construct(link, parameters);
+            embedded =
+                resource.Embedded.Where(e =>
+                    e.Rel == relationship
+                    && e.Links.Any(s => s.Rel == "self")
+                    && Construct(e.Links.First(s => s.Rel == "self"), parameters) == linkUri);
+            return embedded.Any();
+        }
+
         private IHalClient BuildAndExecute(string relationship, object parameters, Func<string, Task<HttpResponseMessage>> command)
         {
             var resource = _current.FirstOrDefault(r => r.Links.Any(l => l.Rel == relationship));
             if (resource == null)
                 throw new FailedToResolveRelationship(relationship);
 
-            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            var link = resource.Links.First(l => l.Rel == relationship);
             return Execute(Construct(link, parameters), command);
         }
 
-        internal Task<IHalClient> BuildAndExecuteAsync(string relationship, object parameters, Func<string, Task<HttpResponseMessage>> command)
+        private Task<IHalClient> BuildAndExecuteAsync(string relationship, object parameters, Func<string, Task<HttpResponseMessage>> command)
         {
             var resource = _current.FirstOrDefault(r => r.Links.Any(l => l.Rel == relationship));
             if (resource == null)
                 throw new FailedToResolveRelationship(relationship);
 
-            var link = resource.Links.FirstOrDefault(l => l.Rel == relationship);
+            var link = resource.Links.First(l => l.Rel == relationship);
             return ExecuteAsync(Construct(link, parameters), command);
         }
 
@@ -588,7 +648,7 @@ namespace HoneyBear.HalClient
             return Process(result);
         }
 
-        internal async Task<IHalClient> ExecuteAsync(string uri, Func<string, Task<HttpResponseMessage>> command)
+        private async Task<IHalClient> ExecuteAsync(string uri, Func<string, Task<HttpResponseMessage>> command)
         {
             var result = await command(uri);
 

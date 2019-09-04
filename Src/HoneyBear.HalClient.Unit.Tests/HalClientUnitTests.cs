@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using HoneyBear.HalClient.Models;
+﻿using HoneyBear.HalClient.Models;
 using HoneyBear.HalClient.Unit.Tests.ProxyResources;
 using NUnit.Framework;
 
@@ -51,7 +50,7 @@ namespace HoneyBear.HalClient.Unit.Tests
             IHalClient Act(IHalClient sut) => sut
                 .Root(RootUri)
                 .Get("order", new {orderRef = _context.OrderRef}, Curie)
-                .Get("orderitem", Curie);
+                .Get("orderitem-query", Curie);
 
             _context.Act(Act);
 
@@ -84,11 +83,58 @@ namespace HoneyBear.HalClient.Unit.Tests
             IHalClient Act(IHalClient sut) => sut
                 .Root(RootUri)
                 .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
-                .Get("order", Curie);
+                .Get("order", new {orderRef = _context.OrderRef}, Curie);
 
             _context.Act(Act);
 
             _context.AssertThatEmbeddedPagedResourceIsPresent();
+        }
+
+        [Test]
+        public void Navigate_to_paged_embedded_resource_and_navigate_to_embedded_resource_via_parent()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangePagedResource();
+
+            IHalClient Act(IHalClient sut)
+            {
+                var resource =
+                    sut
+                        .Root(RootUri)
+                        .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
+                        .Item<PagedList>();
+
+                return sut.Get(resource, "order", new {orderRef = _context.OrderRef}, Curie);
+            }
+
+            _context.Act(Act);
+
+            _context.AssertThatSingleResourceIsPresent();
+        }
+
+        [Test]
+        public void Navigate_to_paged_linked_resource_and_navigate_to_linked_resource_via_parent()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangePagedResourceWithLinkedResources()
+                .ArrangeSingleResource();
+
+            IHalClient Act(IHalClient sut)
+            {
+                var resource =
+                    sut
+                        .Root(RootUri)
+                        .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
+                        .Item<PagedList>();
+
+                return sut.Get(resource, "order", new {orderRef = _context.OrderRef}, Curie);
+            }
+
+            _context.Act(Act);
+
+            _context.AssertThatSingleResourceIsPresent();
         }
 
         [Test]
@@ -104,14 +150,13 @@ namespace HoneyBear.HalClient.Unit.Tests
                     sut
                         .Root(RootUri)
                         .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
-                        .Get("order", Curie)
-                        .Items<Order>()
-                        .First();
+                        .Get("order", new {orderRef = _context.OrderRef}, Curie)
+                        .Item<Order>();
 
                 return
                     sut
                         .Get(order, "orderitem-query", Curie)
-                        .Get("orderitem", Curie);
+                        .Get("orderitem", new {orderItemRef = _context.OrderItemRef}, Curie);
             }
 
             _context.Act(Act);
@@ -132,14 +177,13 @@ namespace HoneyBear.HalClient.Unit.Tests
                     sut
                         .Root(RootUri)
                         .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
-                        .Get("order", Curie)
-                        .Items<Order>()
-                        .First();
+                        .Get("order", new {orderRef = _context.OrderRef}, Curie)
+                        .Item<Order>();
 
                 return
                     sut
                         .Get(order, "orderitem-query", Curie)
-                        .Get("orderitem", Curie);
+                        .Get("orderitem", new {orderItemRef = _context.OrderItemRef}, Curie);
             }
 
             _context.Act(Act);
@@ -553,7 +597,7 @@ namespace HoneyBear.HalClient.Unit.Tests
         }
 
         [Test]
-        public void HalClient_can_be_created_with_specifed_HttpClient() =>
+        public void HalClient_can_be_created_with_specified_HttpClient() =>
             _context.AssertThatHttpClientCanBeProvided();
 
         [Test]
@@ -614,6 +658,22 @@ namespace HoneyBear.HalClient.Unit.Tests
             _context.ArrangeFailedHomeRequest();
 
             IHalClient Act(IHalClient sut) => sut.Root(RootUri);
+
+            Assert.Throws<HttpRequestFailed>(() => _context.Act(Act));
+        }
+
+        [Test]
+        public void Throws_exception_when_resource_does_not_exist()
+        {
+            _context
+                .ArrangeHomeResource()
+                .ArrangePagedResource()
+                .ArrangeFailedOrderRequest();
+
+            IHalClient Act(IHalClient sut) => sut
+                .Root(RootUri)
+                .Get("order-queryby-user", new {userRef = HalClientTestContext.UserRef}, Curie)
+                .Get("order", new {orderRef = HalClientTestContext.NonExistentOrderRef}, Curie);
 
             Assert.Throws<HttpRequestFailed>(() => _context.Act(Act));
         }

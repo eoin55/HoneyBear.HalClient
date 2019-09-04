@@ -11,7 +11,7 @@ namespace HoneyBear.HalClient.Models
     /// <summary>
     /// Contains a set of IResource extensions.
     /// </summary>
-    public static class ResourceConverterExtenstions
+    public static class ResourceConverterExtensions
     {
         internal static T Data<T>(this IResource source)
             where T : class, new()
