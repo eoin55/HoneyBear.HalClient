@@ -15,7 +15,7 @@
     <Description>A lightweight fluent .NET client for navigating and consuming HAL APIs.  Includes support for .NET Standard.</Description>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HoneyBear.HalClient.xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicense>https://github.com/eoin55/HoneyBear.HalClient/blob/master/LICENSE</PackageLicense>
+    <PackageLicense>MIT</PackageLicense>
     <PackageProjectUrl>https://github.com/eoin55/HoneyBear.HalClient</PackageProjectUrl>
     <PackageTags>HAL JSON Hypermedia HATEOAS REST DotNetCore NetStandard</PackageTags>
     <RepositoryUrl>https://github.com/eoin55/HoneyBear.HalClient</RepositoryUrl>
